@@ -12,7 +12,8 @@
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-cljsbuild "1.0.3"]
-            [lein-ring "0.8.13"]]
+            [lein-ring "0.8.13"]
+            [lein-midje "3.1.3"]]
   :hooks [environ.leiningen.hooks]
   :uberjar-name "tta.jar"
   :profiles {:production {:env {:production true}}

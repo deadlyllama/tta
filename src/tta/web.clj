@@ -12,13 +12,20 @@
    :headers {"Content-Type" "text/html"}
    :body (slurp (io/resource "index.html"))})
 
+(def current-game (atom game/sample-game-state))
+
 (defroutes app
   (GET "/" []
        (splash))
   (GET "/api/game" []
        {:status 200
         :headers {"Content-Type" "application/edn"}
-        :body (str game/game-state)})
+        :body (str @current-game)})
+  (POST "/api/game/actions" [action]
+        (swap! current-game game/pass)
+        {:status 200
+         :headers {"Content-Type" "application/edn"}
+         :body (str ["jee"])})
   (GET "*" []
        (route/resources "/"))
   (ANY "*" []
