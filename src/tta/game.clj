@@ -1,4 +1,4 @@
-(ns clojure-getting-started.game
+(ns tta.game
   (:use [midje.sweet :only [fact facts]]))
 
 (def initial-player-state

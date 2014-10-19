@@ -14,7 +14,7 @@
             [lein-cljsbuild "1.0.3"]
             [lein-ring "0.8.13"]]
   :hooks [environ.leiningen.hooks]
-  :uberjar-name "clojure-getting-started-standalone.jar"
+  :uberjar-name "tta.jar"
   :profiles {:production {:env {:production true}}
              :dev {:dependencies [[midje "1.6.3"]
                                   [org.clojure/clojurescript "0.0-2371"]]}}
@@ -22,4 +22,4 @@
                         :compiler {:output-to "resources/public/js/app.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}]}
-  :ring {:handler clojure-getting-started.web/app})
+  :ring {:handler tta.web/app})

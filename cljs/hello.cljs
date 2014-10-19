@@ -1,4 +1,4 @@
-(ns hello
+(ns app
   (:use [jayq.core :only [$ css text html]]
         [jayq.util :only [log]])
   (:use-macros [jayq.macros :only [let-ajax]])

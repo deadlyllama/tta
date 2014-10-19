@@ -1,11 +1,11 @@
-(ns clojure-getting-started.web
+(ns tta.web
   (:require [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.handler :refer [site]]
             [compojure.route :as route]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
-            [clojure-getting-started.game :as game]))
+            [tta.game :as game]))
 
 (defn splash []
   {:status 200
