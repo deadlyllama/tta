@@ -1,0 +1,12 @@
+- temppelit
+- kaivokset
+- farmit
+- populaatio- ja resurssitrackit
+- kulttuuritrack: per vuoro, kokonaisuus
+
+- käyttäjät
+- sessiot
+- pelin luonti
+- pelin tilan esittäminen (vuoro, phase, subphase)
+- käli-MVP (tavoitteena visualisointi)
+- vuoron päättäminen
