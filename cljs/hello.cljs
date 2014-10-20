@@ -7,14 +7,12 @@
             [hiccups.runtime :as hiccupsrt]))
 
 (hiccups/defhtml show-player [player]
-  [:div
+  [:div { :class "player" }
    [:h3 (:name player)]
    [:h4 "Buildings"]
-   [:dl
-    (->> (for [[building building-count] (:buildings player)]
-           [[:dt building]
-            [:dd building-count]])
-         (apply concat))]])
+   [:ul
+    (for [[building building-count] (:buildings player)]
+      [:li (str (name building) ": " building-count)])]])
 
 (defn current-player [game]
   (get (:players game)
