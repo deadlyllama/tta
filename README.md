@@ -1,3 +1,6 @@
-# tta
+# TTA
 
-TODO.
+## Compile and run
+
+    lein cljsbuild auto
+    lein ring server
