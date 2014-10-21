@@ -6,7 +6,8 @@
                :farm 2
                :mine 2}
    :commodities {:food 0
-                 :resources 0}})
+                 :resources 0}
+   :supply 18})
 
 (defn create-player [a-name]
   (assoc initial-player-state
@@ -43,9 +44,11 @@
        (:current-player game)))
 
 (defn produce-from [player building commodity]
-  (update-in player
-             [:commodities commodity]
-             #(+ % (get-in player [:buildings building]))))
+  (let [amount (min (:supply player)
+                    (get-in player [:buildings building]))]
+    (-> player
+      (update-in [:commodities commodity] #(+ % amount))
+      (update-in [:supply] #(- % amount)))))
 
 (defn production-phase [game]
   "Updates the current player's board state according to the rules of the
@@ -71,6 +74,12 @@
           [:players 1 :commodities :resources]) => 2
   (get-in (production-phase (production-phase sample-game-state))
           [:players 0 :commodities :resources]) => 4)
+
+(fact "Production reduces supply"
+  (get-in (production-phase sample-game-state)
+          [:players 0 :supply]) => 14
+  (get-in (production-phase (production-phase sample-game-state))
+          [:players 0 :supply]) => 10)
 
 (defn pass [game]
   (let [updated-game (production-phase game)]

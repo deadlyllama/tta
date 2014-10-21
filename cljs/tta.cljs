@@ -16,7 +16,10 @@
    [:h4 "Commodities"]
    [:ul
     (for [[commodity commodity-count] (:commodities player)]
-      [:li (str (name commodity) ": " commodity-count)])]])
+      [:li (str (name commodity) ": " commodity-count)])]
+   [:h4 "Supply"]
+   [:ul
+    [:li (str "balance: " (:supply player))]]])
 
 (defn current-player [game]
   (get (:players game)
