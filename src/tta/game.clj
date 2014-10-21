@@ -50,6 +50,54 @@
       (update-in [:commodities commodity] #(+ % amount))
       (update-in [:supply] #(- % amount)))))
 
+(defn corruption [player]
+  (let [supply (:supply player)]
+    (cond
+      (= supply 0) 6
+      (< supply 5) 4
+      (< supply 9) 2
+      :else        0)))
+
+(defn pay-corruption [player]
+  (let [corruption (min (corruption player) (get-in player [:commodities :resources]))]
+    (-> player
+      (update-in [:commodities :resources] #(- % corruption))
+      (update-in [:supply] #(+ % corruption)))))
+
+(fact "Corruption reduces resources and increases supply"
+  (let [player (current-player sample-game-state)
+        player-without-corruption (-> player
+                                    (assoc-in [:commodities :resources] 2)
+                                    (assoc :supply 16))
+        player-with-light-corruption (-> player
+                                       (assoc-in [:commodities :resources] 10)
+                                       (assoc :supply 8))
+        player-with-medium-corruption (-> player
+                                        (assoc-in [:commodities :resources] 14)
+                                        (assoc :supply 4))
+        player-with-heavy-corruption (-> player
+                                       (assoc-in [:commodities :resources] 18)
+                                       (assoc :supply 0))
+        player-who-cannot-pay-corruption (-> player
+                                           (assoc-in [:commodities :food] 15)
+                                           (assoc-in [:commodities :resources] 1)
+                                           (assoc :supply 2))]
+    (get-in (pay-corruption player-without-corruption)
+            [:commodities :resources]) => 2
+    (get-in (pay-corruption player-with-light-corruption)
+            [:commodities :resources]) => 8
+    (get-in (pay-corruption player-with-medium-corruption)
+            [:commodities :resources]) => 10
+    (get-in (pay-corruption player-with-heavy-corruption)
+            [:commodities :resources]) => 12
+    (get-in (pay-corruption player-who-cannot-pay-corruption)
+            [:commodities :resources]) => 0
+    (:supply (pay-corruption player-without-corruption)) => 16
+    (:supply (pay-corruption player-with-light-corruption)) => 10
+    (:supply (pay-corruption player-with-medium-corruption)) => 8
+    (:supply (pay-corruption player-with-heavy-corruption)) => 6
+    (:supply (pay-corruption player-who-cannot-pay-corruption)) => 3))
+
 (defn production-phase [game]
   "Updates the current player's board state according to the rules of the
   production phase."
