@@ -64,38 +64,51 @@
       (update-in [:commodities :resources] #(- % corruption))
       (update-in [:supply] #(+ % corruption)))))
 
+(defn singleton? [coll]
+  (and (not (empty? coll))
+       (empty? (rest coll))))
+
+(defn multi-assoc-in [target & path-value-pairs]
+  (if (or (empty? path-value-pairs)
+          (singleton? path-value-pairs))
+    target
+    (let [[path value] (take 2 path-value-pairs)
+          rest-pairs (drop 2 path-value-pairs)]
+      (apply multi-assoc-in (assoc-in target path value)
+                            rest-pairs))))
+
+(fact
+  (let [player (current-player sample-game-state)]
+    (multi-assoc-in player [:commodities :resources] 2
+                           [:supply]                 4) =>
+    (-> player (assoc-in [:commodities :resources] 2)
+               (assoc-in [:supply]                 4))))
+
 (fact "Corruption reduces resources and increases supply"
   (let [player (current-player sample-game-state)
-        player-without-corruption (-> player
-                                    (assoc-in [:commodities :resources] 2)
-                                    (assoc :supply 16))
-        player-with-light-corruption (-> player
-                                       (assoc-in [:commodities :resources] 10)
-                                       (assoc :supply 8))
-        player-with-medium-corruption (-> player
-                                        (assoc-in [:commodities :resources] 14)
-                                        (assoc :supply 4))
-        player-with-heavy-corruption (-> player
-                                       (assoc-in [:commodities :resources] 18)
-                                       (assoc :supply 0))
-        player-who-cannot-pay-corruption (-> player
-                                           (assoc-in [:commodities :food] 15)
-                                           (assoc-in [:commodities :resources] 1)
-                                           (assoc :supply 2))]
-    (get-in (pay-corruption player-without-corruption)
-            [:commodities :resources]) => 2
-    (get-in (pay-corruption player-with-light-corruption)
-            [:commodities :resources]) => 8
-    (get-in (pay-corruption player-with-medium-corruption)
-            [:commodities :resources]) => 10
-    (get-in (pay-corruption player-with-heavy-corruption)
-            [:commodities :resources]) => 12
-    (get-in (pay-corruption player-who-cannot-pay-corruption)
-            [:commodities :resources]) => 0
-    (:supply (pay-corruption player-without-corruption)) => 16
-    (:supply (pay-corruption player-with-light-corruption)) => 10
-    (:supply (pay-corruption player-with-medium-corruption)) => 8
-    (:supply (pay-corruption player-with-heavy-corruption)) => 6
+        player-with-resources-and-supply
+          (fn [resources supply]
+            (multi-assoc-in player
+                            [:commodities :resources] resources
+                            [:supply]                 supply))
+        resources (fn [player] (get-in player [:commodities :resources]))
+        player-without-corruption     (player-with-resources-and-supply  2 16)
+        player-with-light-corruption  (player-with-resources-and-supply 10  8)
+        player-with-medium-corruption (player-with-resources-and-supply 14  4)
+        player-with-heavy-corruption  (player-with-resources-and-supply 18  0)
+        player-who-cannot-pay-corruption (multi-assoc-in player
+                                                         [:commodities :food] 15
+                                                         [:commodities :resources] 1
+                                                         [:supply] 2)]
+    (resources (pay-corruption player-without-corruption))        => 2
+    (resources (pay-corruption player-with-light-corruption))     => 8
+    (resources (pay-corruption player-with-medium-corruption))    => 10
+    (resources (pay-corruption player-with-heavy-corruption))     => 12
+    (resources (pay-corruption player-who-cannot-pay-corruption)) => 0
+    (:supply (pay-corruption player-without-corruption))        => 16
+    (:supply (pay-corruption player-with-light-corruption))     => 10
+    (:supply (pay-corruption player-with-medium-corruption))    => 8
+    (:supply (pay-corruption player-with-heavy-corruption))     => 6
     (:supply (pay-corruption player-who-cannot-pay-corruption)) => 3))
 
 (defn production-phase [game]
