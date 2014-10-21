@@ -5,7 +5,7 @@
   {:buildings {:temple 1
                :farm 2
                :mine 2}
-   :consumables {:food 0}})
+   :commodities {:food 0}})
 
 (defn create-player [a-name]
   (assoc initial-player-state
@@ -37,11 +37,6 @@
   (assoc game :current-player 0
               :current-round (inc (:current-round game))))
 
-(defn pass [game]
-  (if (last-players-turn? game)
-    (next-round game)
-    (next-player game)))
-
 (defn current-player [game]
   (get (:players game)
        (:current-player game)))
@@ -51,20 +46,30 @@
    according to the rules of the production phase."
   (let [player (current-player game)
         updated-player
-          (update-in player [:consumables :food]
+          (update-in player [:commodities :food]
                      (fn [food]
                        (+ food (get-in player [:buildings :farm]))))]
     (assoc-in game [:players (:current-player game)] updated-player)))
 
 (fact
   (get-in (production-phase sample-game-state)
-          [:players 0 :consumables :food]) => 2
+          [:players 0 :commodities :food]) => 2
   (get-in (production-phase (assoc sample-game-state :current-player 1))
-          [:players 1 :consumables :food]) => 2)
+          [:players 1 :commodities :food]) => 2
+  (get-in (production-phase (production-phase sample-game-state))
+          [:players 0 :commodities :food]) => 4)
+
+(defn pass [game]
+  (let [updated-game (production-phase game)]
+    (if (last-players-turn? updated-game)
+      (next-round updated-game)
+      (next-player updated-game))))
 
 (let [game sample-game-state
       game2 (assoc game :current-player 2)]
-  (fact
-    (pass game) => (assoc game :current-player 1)
-    (pass game2) => (assoc game2 :current-player 0
-                                 :current-round 2)))
+  (fact "passing rotates to next player,
+         and updates current round after last player"
+    (:current-player (pass game)) => 1
+    (:current-player (pass game2)) => 0
+    (:current-round (pass game2)) => 2))
+
