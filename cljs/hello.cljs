@@ -1,7 +1,7 @@
 (ns app
   (:use [jayq.core :only [$ css text html bind]]
         [jayq.util :only [log]])
-  (:use-macros [jayq.macros :only [let-ajax]])
+  (:use-macros [jayq.macros :only [let-ajax ready]])
   (:require-macros [hiccups.core :as hiccups])
   (:require [jayq.core :as jq]
             [hiccups.runtime :as hiccupsrt]))
@@ -28,11 +28,12 @@
   (let-ajax [game {:url "/api/game"}]
     (html ($ :#game) (render-game game))))
 
-(refresh-game)
+(ready
+  (refresh-game)
 
-(bind ($ :#pass) "click"
-  (fn [event]
-    (let-ajax [_ {:url "/api/game/actions"
-                  :data "pass"
-                  :type "POST"}]
-      (refresh-game))))
+  (bind ($ :#pass) "click"
+    (fn [event]
+      (let-ajax [_ {:url "/api/game/actions"
+                    :data "pass"
+                    :type "POST"}]
+        (refresh-game)))))
