@@ -5,7 +5,8 @@
   {:buildings {:temple 1
                :farm 2
                :mine 2}
-   :commodities {:food 0}})
+   :commodities {:food 0
+                 :resources 0}})
 
 (defn create-player [a-name]
   (assoc initial-player-state
@@ -41,23 +42,35 @@
   (get (:players game)
        (:current-player game)))
 
+(defn produce-from [player building commodity]
+  (update-in player
+             [:commodities commodity]
+             #(+ % (get-in player [:buildings building]))))
+
 (defn production-phase [game]
-  "Updates the current player's board state
-   according to the rules of the production phase."
+  "Updates the current player's board state according to the rules of the
+  production phase."
   (let [player (current-player game)
-        updated-player
-          (update-in player [:commodities :food]
-                     (fn [food]
-                       (+ food (get-in player [:buildings :farm]))))]
+        updated-player (-> player
+                         (produce-from :farm :food)
+                         (produce-from :mine :resources))]
     (assoc-in game [:players (:current-player game)] updated-player)))
 
-(fact
+(fact "Production phase produces food"
   (get-in (production-phase sample-game-state)
           [:players 0 :commodities :food]) => 2
   (get-in (production-phase (assoc sample-game-state :current-player 1))
           [:players 1 :commodities :food]) => 2
   (get-in (production-phase (production-phase sample-game-state))
           [:players 0 :commodities :food]) => 4)
+
+(fact "Production phase produces resources"
+  (get-in (production-phase sample-game-state)
+          [:players 0 :commodities :resources]) => 2
+  (get-in (production-phase (assoc sample-game-state :current-player 1))
+          [:players 1 :commodities :resources]) => 2
+  (get-in (production-phase (production-phase sample-game-state))
+          [:players 0 :commodities :resources]) => 4)
 
 (defn pass [game]
   (let [updated-game (production-phase game)]
