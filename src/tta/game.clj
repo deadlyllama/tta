@@ -140,7 +140,18 @@
   (get-in (production-phase sample-game-state)
           [:players 0 :supply]) => 14
   (get-in (production-phase (production-phase sample-game-state))
-          [:players 0 :supply]) => 10)
+          [:players 0 :supply]) => 10
+  (fact "Production cannot exceed supply"
+    (let [player (multi-assoc-in (current-player sample-game-state)
+                                 [:supply] 1
+                                 [:commodities :food] 0)
+          game-state (production-phase
+                       (assoc-in sample-game-state
+                                 [:players (:current-player sample-game-state)]
+                                 player))]
+        (:supply (current-player game-state)) => 0
+        (get-in (current-player game-state)
+                [:commodities :food]) => 1)))
 
 (defn pass [game]
   (let [updated-game (production-phase game)]
