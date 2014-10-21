@@ -25,8 +25,6 @@
 
 (fact (player-count sample-game-state) => 3)
 
-(declare next-turn)
-
 (defn last-players-turn? [game]
   (= (dec (player-count game))
      (:current-player game)))
@@ -34,13 +32,13 @@
 (defn next-player [game]
   (update-in game [:current-player] inc))
 
-(defn next-turn [game]
+(defn next-round [game]
   (assoc game :current-player 0
               :current-round (inc (:current-round game))))
 
 (defn pass [game]
   (if (last-players-turn? game)
-    (next-turn game)
+    (next-round game)
     (next-player game)))
 
 (let [game sample-game-state
