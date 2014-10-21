@@ -106,7 +106,8 @@
     (multi-assoc-in player [:commodities :resources] 2
                            [:supply]                 4) =>
     (-> player (assoc-in [:commodities :resources] 2)
-               (assoc-in [:supply]                 4))))
+               (assoc-in [:supply]                 4)))
+  (multi-assoc-in {:key 1} [:key] 2 [:key] 3) => {:key 3})
 
 (fact "Corruption reduces resources and increases supply"
   (let [player (current-player sample-game-state)
