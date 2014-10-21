@@ -58,6 +58,30 @@
       (< supply 9) 2
       :else        0)))
 
+(defn unpaid-corruption [player]
+  (let [resources (get-in player [:commodities :resources])
+        corruption (corruption player)]
+    (if (> corruption resources)
+      (- corruption resources)
+      0)))
+
+(fact
+  (let [player (current-player sample-game-state)]
+    (unpaid-corruption (multi-assoc-in player
+                                       [:supply] 8
+                                       [:commodities :food] 9
+                                       [:commodities :resources] 1))
+      => 1
+    (unpaid-corruption (multi-assoc-in player
+                                       [:supply] 8
+                                       [:commodities :resources] 10))
+      => 0
+    (unpaid-corruption (multi-assoc-in player
+                                       [:supply] 4
+                                       [:commodities :food] 12
+                                       [:commodities :resources] 2))
+      => 2))
+
 (defn pay-corruption [player]
   (let [corruption (min (corruption player) (get-in player [:commodities :resources]))]
     (-> player
