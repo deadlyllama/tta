@@ -22,7 +22,7 @@
         :headers {"Content-Type" "application/edn"}
         :body (str @current-game)})
   (POST "/api/game/actions" [action]
-        (swap! current-game game/pass)
+        (swap! current-game game/end-turn)
         {:status 200
          :headers {"Content-Type" "application/edn"}
          :body (str ["jee"])})

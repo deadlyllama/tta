@@ -93,10 +93,10 @@
         (get-in (current-player game-state)
                 [:commodities :food]) => 1)))
 
-(fact "passing rotates to next player,
+(fact "ending a turn rotates to next player,
        and updates current round after last player"
   (let [game sample-game-state
         game2 (assoc game :current-player 2)]
-    (:current-player (pass game)) => 1
-    (:current-player (pass game2)) => 0
-    (:current-round (pass game2)) => 2))
+    (:current-player (end-turn game)) => 1
+    (:current-player (end-turn game2)) => 0
+    (:current-round (end-turn game2)) => 2))

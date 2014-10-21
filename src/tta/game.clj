@@ -88,7 +88,7 @@
     (assoc-in game [:players (:current-player game)] updated-player)))
 
 
-(defn pass [game]
+(defn end-turn [game]
   (let [updated-game (production-phase game)]
     (if (last-players-turn? updated-game)
       (next-round updated-game)
