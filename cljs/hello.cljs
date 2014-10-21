@@ -12,7 +12,11 @@
    [:h4 "Buildings"]
    [:ul
     (for [[building building-count] (:buildings player)]
-      [:li (str (name building) ": " building-count)])]])
+      [:li (str (name building) ": " building-count)])]
+   [:h4 "Commodities"]
+   [:ul
+    (for [[commodity commodity-count] (:commodities player)]
+      [:li (str (name commodity) ": " commodity-count)])]])
 
 (defn current-player [game]
   (get (:players game)
