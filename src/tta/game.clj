@@ -37,9 +37,12 @@
   (get (:players game)
        (:current-player game)))
 
+(defn production-amount [building commodity player]
+  (min (:supply player)
+       (get-in player [:buildings building])))
+
 (defn produce-from [building commodity player]
-  (let [amount (min (:supply player)
-                    (get-in player [:buildings building]))]
+  (let [amount (production-amount building commodity player)]
     (-> player
       (update-in [:commodities commodity] #(+ % amount))
       (update-in [:supply] #(- % amount)))))
@@ -88,21 +91,28 @@
     updated-game))
 
 (defn produce-food [game]
-  (update-player-with #(produce-from :farm :food %) game))
+  [(update-player-with #(produce-from :farm :food %) game)
+   [(str "Produced "
+        (production-amount :farm :food (current-player game))
+        " food")]])
 
 (defn produce-resources [game]
-  (update-player-with #(produce-from :mine :resources %) game))
+  [(update-player-with #(produce-from :mine :resources %) game)
+   [(str "Produced "
+        (production-amount :mine :resources (current-player game))
+        " resources")]])
 
 (defn production-phase [game]
-  (let [with-food (produce-food game)
-        with-resources (produce-resources with-food)]
-    with-resources))
-
+  (let [[with-food events] (produce-food game)
+        [with-resources events2] (produce-resources with-food)]
+    [with-resources (concat events events2)]))
 
 (defn end-turn [game]
-  (let [updated-game (production-phase game)]
-    (if (last-players-turn? updated-game)
-      (next-round updated-game)
-      (next-player updated-game))))
-
+  (let [[updated-game events] (production-phase game)
+        with-events (assoc-in updated-game
+                              [:players (:current-player game) :events]
+                              events)]
+    (if (last-players-turn? with-events)
+      (next-round with-events)
+      (next-player with-events))))
 

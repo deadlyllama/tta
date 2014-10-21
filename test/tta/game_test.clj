@@ -60,39 +60,42 @@
     (:supply (pay-corruption player-with-heavy-corruption))     => 6
     (:supply (pay-corruption player-who-cannot-pay-corruption)) => 3))
 
+(def game-data 0)
+
 (fact
   (get-in (produce-food sample-game-state)
-          [:players 0 :commodities :food]) => 2
+          [game-data :players 0 :commodities :food]) => 2
   (get-in (produce-food (assoc sample-game-state :current-player 1))
-          [:players 1 :commodities :food]) => 2
-  (get-in (produce-food (produce-food sample-game-state))
-          [:players 0 :commodities :food]) => 4)
+          [game-data :players 1 :commodities :food]) => 2
+  (get-in (produce-food (get (produce-food sample-game-state) game-data))
+          [game-data :players 0 :commodities :food]) => 4)
 
 (fact
   (get-in (produce-resources sample-game-state)
-          [:players 0 :commodities :resources]) => 2
+          [game-data :players 0 :commodities :resources]) => 2
   (get-in (produce-resources (assoc sample-game-state :current-player 1))
-          [:players 1 :commodities :resources]) => 2
-  (get-in (produce-resources (produce-resources sample-game-state))
-          [:players 0 :commodities :resources]) => 4)
+          [game-data :players 1 :commodities :resources]) => 2
+  (get-in (produce-resources (get (produce-resources sample-game-state) game-data))
+          [game-data :players 0 :commodities :resources]) => 4)
 
 (fact "Production reduces supply"
   (get-in (produce-food sample-game-state)
-          [:players 0 :supply]) => 16
+          [game-data :players 0 :supply]) => 16
   (get-in (produce-resources sample-game-state)
-          [:players 0 :supply]) => 16
-  (get-in (produce-food (produce-food sample-game-state))
-          [:players 0 :supply]) => 14
-  (get-in (produce-resources (produce-resources sample-game-state))
-          [:players 0 :supply]) => 14
+          [game-data :players 0 :supply]) => 16
+  (get-in (produce-food (get (produce-food sample-game-state) game-data))
+          [game-data :players 0 :supply]) => 14
+  (get-in (produce-resources (get (produce-resources sample-game-state) game-data))
+          [game-data :players 0 :supply]) => 14
   (fact "Production cannot exceed supply"
     (let [player (multi-assoc-in (current-player sample-game-state)
                                  [:supply] 1
                                  [:commodities :food] 0)
-          game-state (produce-food
-                       (assoc-in sample-game-state
-                                 [:players (:current-player sample-game-state)]
-                                 player))]
+          game-state (get (produce-food
+                            (assoc-in sample-game-state
+                                      [:players (:current-player sample-game-state)]
+                                      player))
+                          game-data)]
         (:supply (current-player game-state)) => 0
         (get-in (current-player game-state)
                 [:commodities :food]) => 1)))
