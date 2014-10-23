@@ -60,32 +60,36 @@
     (:supply (pay-corruption player-with-heavy-corruption))     => 6
     (:supply (pay-corruption player-who-cannot-pay-corruption)) => 3))
 
-(fact "Production phase produces food"
-  (get-in (production-phase sample-game-state)
+(fact
+  (get-in (produce-food sample-game-state)
           [:players 0 :commodities :food]) => 2
-  (get-in (production-phase (assoc sample-game-state :current-player 1))
+  (get-in (produce-food (assoc sample-game-state :current-player 1))
           [:players 1 :commodities :food]) => 2
-  (get-in (production-phase (production-phase sample-game-state))
+  (get-in (produce-food (produce-food sample-game-state))
           [:players 0 :commodities :food]) => 4)
 
-(fact "Production phase produces resources"
-  (get-in (production-phase sample-game-state)
+(fact
+  (get-in (produce-resources sample-game-state)
           [:players 0 :commodities :resources]) => 2
-  (get-in (production-phase (assoc sample-game-state :current-player 1))
+  (get-in (produce-resources (assoc sample-game-state :current-player 1))
           [:players 1 :commodities :resources]) => 2
-  (get-in (production-phase (production-phase sample-game-state))
+  (get-in (produce-resources (produce-resources sample-game-state))
           [:players 0 :commodities :resources]) => 4)
 
 (fact "Production reduces supply"
-  (get-in (production-phase sample-game-state)
+  (get-in (produce-food sample-game-state)
+          [:players 0 :supply]) => 16
+  (get-in (produce-resources sample-game-state)
+          [:players 0 :supply]) => 16
+  (get-in (produce-food (produce-food sample-game-state))
           [:players 0 :supply]) => 14
-  (get-in (production-phase (production-phase sample-game-state))
-          [:players 0 :supply]) => 10
+  (get-in (produce-resources (produce-resources sample-game-state))
+          [:players 0 :supply]) => 14
   (fact "Production cannot exceed supply"
     (let [player (multi-assoc-in (current-player sample-game-state)
                                  [:supply] 1
                                  [:commodities :food] 0)
-          game-state (production-phase
+          game-state (produce-food
                        (assoc-in sample-game-state
                                  [:players (:current-player sample-game-state)]
                                  player))]

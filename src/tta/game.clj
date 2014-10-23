@@ -37,7 +37,7 @@
   (get (:players game)
        (:current-player game)))
 
-(defn produce-from [player building commodity]
+(defn produce-from [building commodity player]
   (let [amount (min (:supply player)
                     (get-in player [:buildings building]))]
     (-> player
@@ -78,14 +78,25 @@
       (apply multi-assoc-in (assoc-in target path value)
                             rest-pairs))))
 
-(defn production-phase [game]
-  "Updates the current player's board state according to the rules of the
-  production phase."
+(defn update-current-player [game updated-player]
+  )
+
+(defn update-player-with [f game]
   (let [player (current-player game)
-        updated-player (-> player
-                         (produce-from :farm :food)
-                         (produce-from :mine :resources))]
-    (assoc-in game [:players (:current-player game)] updated-player)))
+        updated-player (f player)
+        updated-game (assoc-in game [:players (:current-player game)] updated-player)]
+    updated-game))
+
+(defn produce-food [game]
+  (update-player-with #(produce-from :farm :food %) game))
+
+(defn produce-resources [game]
+  (update-player-with #(produce-from :mine :resources %) game))
+
+(defn production-phase [game]
+  (let [with-food (produce-food game)
+        with-resources (produce-resources with-food)]
+    with-resources))
 
 
 (defn end-turn [game]
