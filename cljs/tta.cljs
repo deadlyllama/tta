@@ -6,8 +6,8 @@
   (:require [jayq.core :as jq]
             [hiccups.runtime :as hiccupsrt]))
 
-(hiccups/defhtml show-player [player]
-  [:div { :class "player" }
+(hiccups/defhtml show-player [player current-player]
+  [:div {:class (if (= player current-player) "current-player" "player")}
    [:h3 (:name player)]
    [:h4 "Buildings"]
    [:ul
@@ -26,10 +26,8 @@
        (:current-player game)))
 
 (hiccups/defhtml render-game [game]
-  [:h2 (str "Current player: " (:name (current-player game)))]
   [:h2 (str "Round: " (:current-round game))]
-  (map show-player
-       (:players game)))
+  (map #(show-player % (current-player game)) (:players game)))
 
 (defn refresh-game []
   (let-ajax [game {:url "/api/game"}]
