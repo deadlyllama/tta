@@ -8,23 +8,6 @@
 
 (fact (player-count sample-game-state) => 3)
 
-(fact
-  (let [player (current-player sample-game-state)]
-    (unpaid-corruption (multi-assoc-in player
-                                       [:supply] 8
-                                       [:commodities :food] 9
-                                       [:commodities :resources] 1))
-      => 1
-    (unpaid-corruption (multi-assoc-in player
-                                       [:supply] 8
-                                       [:commodities :resources] 10))
-      => 0
-    (unpaid-corruption (multi-assoc-in player
-                                       [:supply] 4
-                                       [:commodities :food] 12
-                                       [:commodities :resources] 2))
-      => 2))
-
 (fact "multi-assoc-in"
   (let [player (current-player sample-game-state)]
     (multi-assoc-in player [:commodities :resources] 2

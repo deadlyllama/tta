@@ -56,17 +56,11 @@
       (< supply 9) 2
       :else        0)))
 
-(defn unpaid-corruption [player]
-  (let [resources (get-in player [:commodities :resources])
-        corruption (corruption player)]
-    (if (> corruption resources)
-      (- corruption resources)
-      0)))
-
 (defn take-corruption-from [player]
-  (let [paid-corruption (min (corruption player)
+  (let [corruption (corruption player)
+        paid-corruption (min corruption
                              (get-in player [:commodities :resources]))
-        unpaid-corruption (unpaid-corruption player)]
+        unpaid-corruption (- corruption paid-corruption)]
     [(-> player
        (update-in [:commodities :resources] #(- % paid-corruption))
        (update-in [:supply] #(+ % paid-corruption)))
