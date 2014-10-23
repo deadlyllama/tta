@@ -33,6 +33,9 @@
                (assoc-in [:supply]                 4)))
   (multi-assoc-in {:key 1} [:key] 2 [:key] 3) => {:key 3})
 
+(def game-data 0)
+(def event-data 1)
+
 (fact "Corruption reduces resources and increases supply"
   (let [player (current-player sample-game-state)
         player-with-resources-and-supply
@@ -49,18 +52,23 @@
                                                          [:commodities :food] 15
                                                          [:commodities :resources] 1
                                                          [:supply] 2)]
-    (resources (pay-corruption player-without-corruption))        => 2
-    (resources (pay-corruption player-with-light-corruption))     => 8
-    (resources (pay-corruption player-with-medium-corruption))    => 10
-    (resources (pay-corruption player-with-heavy-corruption))     => 12
-    (resources (pay-corruption player-who-cannot-pay-corruption)) => 0
-    (:supply (pay-corruption player-without-corruption))        => 16
-    (:supply (pay-corruption player-with-light-corruption))     => 10
-    (:supply (pay-corruption player-with-medium-corruption))    => 8
-    (:supply (pay-corruption player-with-heavy-corruption))     => 6
-    (:supply (pay-corruption player-who-cannot-pay-corruption)) => 3))
-
-(def game-data 0)
+    (resources (get (take-corruption-from player-without-corruption) game-data))        => 2
+    (resources (get (take-corruption-from player-with-light-corruption) game-data))     => 8
+    (resources (get (take-corruption-from player-with-medium-corruption) game-data))    => 10
+    (resources (get (take-corruption-from player-with-heavy-corruption) game-data))     => 12
+    (resources (get (take-corruption-from player-who-cannot-pay-corruption) game-data)) => 0
+    (:paid   (get (take-corruption-from player-with-light-corruption) event-data))      => 2
+    (:paid   (get (take-corruption-from player-with-medium-corruption) event-data))     => 4
+    (:paid   (get (take-corruption-from player-with-heavy-corruption) event-data))      => 6
+    (:unpaid (get (take-corruption-from player-with-light-corruption) event-data))      => 0
+    (:unpaid (get (take-corruption-from player-with-medium-corruption) event-data))     => 0
+    (:unpaid (get (take-corruption-from player-with-heavy-corruption) event-data))      => 0
+    (:unpaid (get (take-corruption-from player-who-cannot-pay-corruption) event-data))  => 3
+    (:supply (get (take-corruption-from player-without-corruption) game-data))          => 16
+    (:supply (get (take-corruption-from player-with-light-corruption) game-data))       => 10
+    (:supply (get (take-corruption-from player-with-medium-corruption) game-data))      => 8
+    (:supply (get (take-corruption-from player-with-heavy-corruption) game-data))       => 6
+    (:supply (get (take-corruption-from player-who-cannot-pay-corruption) game-data))   => 3))
 
 (fact
   (get-in (produce-food sample-game-state)

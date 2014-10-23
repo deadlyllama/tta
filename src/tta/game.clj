@@ -63,11 +63,15 @@
       (- corruption resources)
       0)))
 
-(defn pay-corruption [player]
-  (let [corruption (min (corruption player) (get-in player [:commodities :resources]))]
-    (-> player
-      (update-in [:commodities :resources] #(- % corruption))
-      (update-in [:supply] #(+ % corruption)))))
+(defn take-corruption-from [player]
+  (let [paid-corruption (min (corruption player)
+                             (get-in player [:commodities :resources]))
+        unpaid-corruption (unpaid-corruption player)]
+    [(-> player
+       (update-in [:commodities :resources] #(- % paid-corruption))
+       (update-in [:supply] #(+ % paid-corruption)))
+     {:paid paid-corruption
+      :unpaid unpaid-corruption}]))
 
 (defn singleton? [coll]
   (and (not (empty? coll))
@@ -99,6 +103,23 @@
   (let [[updated-game amount]
           (update-player-with #(produce-from :mine :resources %) game)]
     [updated-game [(str "Produced " amount " resources")]]))
+
+(defn pay-corruption [game]
+  (let [[updated-game amounts]
+          (update-player-with take-corruption-from game)
+        paid-corruption-event (fn [events]
+                                (if (pos? (:paid amounts))
+                                  (conj events (str "Paid " (:paid amounts) " resources in corruption."))
+                                  events))
+        unpaid-corruption-event (fn [events]
+                                  (if (pos? (:unpaid amounts))
+                                    (conj events (str (:unpaid amounts) " corruption left unpaid."))
+                                    events))
+        events (-> []
+                 paid-corruption-event
+                 unpaid-corruption-event
+                 )]
+    [updated-game events]))
 
 (defn production-phase [game]
   (let [[with-food events] (produce-food game)
