@@ -44,4 +44,12 @@
       (let-ajax [_ {:url "/api/game/actions"
                     :data "pass"
                     :type "POST"}]
+        (refresh-game))))
+  
+  (bind ($ :#reset) "click"
+    (fn [event]
+      (let-ajax [_ {:url "/api/game/reset"
+                    :data ""
+                    :type "POST"}]
         (refresh-game)))))
+

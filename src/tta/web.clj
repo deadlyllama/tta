@@ -26,6 +26,11 @@
         {:status 200
          :headers {"Content-Type" "application/edn"}
          :body (str ["jee"])})
+  (POST "/api/game/reset" []
+        (reset! current-game game/sample-game-state)
+        {:status 200
+         :headers {"Content-Type" "application/edn"}
+         :body (str ["jee"])})
   (GET "*" []
        (route/resources "/"))
   (ANY "*" []
