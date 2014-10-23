@@ -43,9 +43,10 @@
 
 (defn produce-from [building commodity player]
   (let [amount (production-amount building commodity player)]
-    (-> player
-      (update-in [:commodities commodity] #(+ % amount))
-      (update-in [:supply] #(- % amount)))))
+    [(-> player
+       (update-in [:commodities commodity] #(+ % amount))
+       (update-in [:supply] #(- % amount)))
+     amount]))
 
 (defn corruption [player]
   (let [supply (:supply player)]
@@ -81,26 +82,23 @@
       (apply multi-assoc-in (assoc-in target path value)
                             rest-pairs))))
 
-(defn update-current-player [game updated-player]
-  )
-
 (defn update-player-with [f game]
   (let [player (current-player game)
-        updated-player (f player)
-        updated-game (assoc-in game [:players (:current-player game)] updated-player)]
-    updated-game))
+        [updated-player data] (f player)
+        updated-game (assoc-in game
+                               [:players (:current-player game)]
+                               updated-player)]
+    [updated-game data]))
 
 (defn produce-food [game]
-  [(update-player-with #(produce-from :farm :food %) game)
-   [(str "Produced "
-        (production-amount :farm :food (current-player game))
-        " food")]])
+  (let [[updated-game amount]
+          (update-player-with #(produce-from :farm :food %) game)]
+    [updated-game [(str "Produced " amount " food")]]))
 
 (defn produce-resources [game]
-  [(update-player-with #(produce-from :mine :resources %) game)
-   [(str "Produced "
-        (production-amount :mine :resources (current-player game))
-        " resources")]])
+  (let [[updated-game amount]
+          (update-player-with #(produce-from :mine :resources %) game)]
+    [updated-game [(str "Produced " amount " resources")]]))
 
 (defn production-phase [game]
   (let [[with-food events] (produce-food game)
