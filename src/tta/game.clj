@@ -123,8 +123,9 @@
 
 (defn production-phase [game]
   (let [[with-food events] (produce-food game)
-        [with-resources events2] (produce-resources with-food)]
-    [with-resources (concat events events2)]))
+        [with-resources events2] (produce-resources with-food)
+        [with-corruption events3] (pay-corruption with-resources)]
+    [with-corruption (concat events events2 events3)]))
 
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)
