@@ -20,6 +20,12 @@
    [:h4 "Supply"]
    [:ul
     [:li (str "balance: " (:supply player))]]
+   [:h4 "Worker pool"]
+   [:ul
+    [:li (str "balance: " (:worker-pool player))]]
+   [:h4 "Population bank"]
+   [:ul
+    [:li (str "balance: " (:population-bank player))]]
    [:h4 "Events"]
    [:ul (for [event (:events player)]
           [:li event])]])

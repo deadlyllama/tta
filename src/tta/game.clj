@@ -13,6 +13,8 @@
                :mine 2}
    :commodities {:food 0
                  :resources 0}
+   :population-bank 18
+   :worker-pool 1
    :supply 18})
 
 (defn create-player [a-name]
