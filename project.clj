@@ -9,7 +9,8 @@
                  [environ "0.5.0"]
                  [jayq "2.5.2"]
                  [hiccups "0.3.0"]
-                 [org.clojure/clojurescript "0.0-2371"]]
+                 [org.clojure/clojurescript "0.0-2371"]
+                 [org.clojure/algo.monads "0.1.5"]]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-cljsbuild "1.0.3"]
