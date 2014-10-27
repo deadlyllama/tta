@@ -1,6 +1,7 @@
 (ns tta.game-test
   (:use [midje.sweet :only [facts fact =>]]
         ;no bullshit, only  facts
+        [clojure.algo.monads :only [domonad]]
         tta.game))
 
 (fact
@@ -98,3 +99,10 @@
     (:current-player (end-turn game)) => 1
     (:current-player (end-turn game2)) => 0
     (:current-round (end-turn game2)) => 2))
+
+(facts "event-m"
+  (let [lolinc (fn [x] [(inc x) ["lol"]])]
+    (domonad event-m
+            [x [3 ["jee"]]
+             y (lolinc x)]
+            y)) => [4 ["jee" "lol"]])

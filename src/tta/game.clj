@@ -1,19 +1,11 @@
 (ns tta.game
-  (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]]
-        [midje.sweet :only [fact facts =>]]))
+  (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]]))
 
 (defmonad event-m
   [m-result (fn [a-value] [a-value []])
    m-bind   (fn [[a-value events] f]
               (let [[f-value f-events] (f a-value)]
                 [f-value (concat events f-events)]))])
-
-(facts "event-m"
-  (let [lolinc (fn [x] [(inc x) ["lol"]])]
-    (domonad event-m
-            [x [3 ["jee"]]
-             y (lolinc x)]
-            y)) => [4 ["jee" "lol"]])
 
 (def initial-player-state
   {:buildings {:temple 1
