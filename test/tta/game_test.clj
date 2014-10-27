@@ -100,6 +100,54 @@
     (:current-player (end-turn game2)) => 0
     (:current-round (end-turn game2)) => 2))
 
+(fact "eventless-update-player-with"
+  (->> sample-game-state
+       (eventless-update-player-with (fn [player]
+                                       (assoc player :population-bank 5)))
+       current-player
+       :population-bank)
+  => 5)
+
+(facts "Increasing population"
+  (let [game (assoc-in sample-game-state
+                       [:players (:current-player sample-game-state) :commodities :food]
+                       3)
+        player-for-game2 (multi-assoc-in (current-player game)
+                                         [:commodities :food] 3
+                                         [:worker-pool] 3
+                                         [:population-bank] 16)
+        game2 (assoc-in sample-game-state
+                        [:players (:current-player sample-game-state)]
+                        player-for-game2)
+        updated-player (current-player (get (increase-population game) game-data))
+        updated-player2 (current-player (get (increase-population game2) game-data))]
+    (:worker-pool updated-player) => 2
+    (:population-bank updated-player) => 17
+    (get-in updated-player [:commodities :food]) => 1
+    (:worker-pool updated-player2) => 4
+    (:population-bank updated-player2) => 15
+    (get-in updated-player2 [:commodities :food]) => 0
+    ))
+
+(fact "Cannot increase population with empty population bank"
+  (let [player-for-game (multi-assoc-in (current-player sample-game-state)
+                                        [:commodities :food] 10
+                                        [:worker-pool] 0
+                                        [:population-bank] 0)
+        game (assoc-in sample-game-state
+                       [:players (:current-player sample-game-state)]
+                       player-for-game)
+        updated-player (current-player (get (increase-population game) game-data))]
+    (:worker-pool updated-player) => 0
+    (:population-bank updated-player) => 0
+    (get-in updated-player [:commodities :food]) => 10))
+
+(fact "Cannot increase population without sufficient food"
+  (let [updated-player (current-player (get (increase-population sample-game-state)
+                                            game-data))]
+    (:worker-pool updated-player) => 1))
+
+
 (facts "event-m"
   (let [lolinc (fn [x] [(inc x) ["lol"]])]
     (domonad event-m

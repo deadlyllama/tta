@@ -131,6 +131,38 @@
                pay-corruption])
      game)))
 
+(defn eventless-update-player-with [f game]
+  (update-in game [:players (:current-player game)] f))
+
+(defn update-current-player [game path f]
+  (eventless-update-player-with
+    (fn [player]
+      (update-in player path f))
+    game))
+
+(defn population-increase-cost [player]
+  (let [bank (:population-bank player)]
+    (cond (< bank 5)  7
+          (< bank 9)  5
+          (< bank 13) 4
+          (< bank 17) 3
+          :else       2)))
+
+(defn increase-population [game]
+  (let [current-player (current-player game)
+        cost (population-increase-cost current-player)]
+    (cond (< (get-in current-player [:commodities :food]) cost)
+            [game "Can't increase population without sufficient food"]
+          (zero? (:population-bank current-player))
+            [game "Can't increase population with empty population bank"]
+          :else
+            [(-> game
+               (update-current-player [:worker-pool] inc)
+               (update-current-player [:population-bank] dec)
+               (update-current-player [:commodities :food] #(- % cost)))
+             [(str "Increased population for " cost " food")]])))
+    
+
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)
         with-events (assoc-in updated-game
