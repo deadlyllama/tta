@@ -54,6 +54,46 @@
     (:supply (get (take-corruption-from player-with-heavy-corruption) game-data))       => 6
     (:supply (get (take-corruption-from player-who-cannot-pay-corruption) game-data))   => 3))
 
+(fact "Consumption reduces food and increases supply"
+      (let [player (current-player sample-game-state)
+            player-with
+            (fn [& {:keys [supply food population-bank]}]
+              (multi-assoc-in player
+                              [:commodities :food] food
+                              [:supply]            supply
+                              [:population-bank]   population-bank))
+            food (fn [player] (get-in player [:commodities :food]))
+            player-without-consumption     (player-with :food 2 :supply 16 :population-bank 18)
+            player-with-light-consumption  (player-with :food 10 :supply 8 :population-bank 16)
+            player-with-medium-consumption (player-with :food 14 :supply 4 :population-bank 12)
+            player-with-heavy-consumption  (player-with :food 18 :supply 0 :population-bank 8)
+            player-with-very-heavy-consumption (player-with :food 18 :supply 0 :population-bank 4)
+            player-with-extreme-consumption (player-with :food 18 :supply 0 :population-bank 0)
+            player-who-cannot-pay-consumption (player-with :food 0 :supply 0 :population-bank 16)]
+        (food (get (take-consumption-from player-without-consumption) game-data))        => 2
+        (food (get (take-consumption-from player-with-light-consumption) game-data))     => 9
+        (food (get (take-consumption-from player-with-medium-consumption) game-data))    => 12
+        (food (get (take-consumption-from player-with-heavy-consumption) game-data))     => 15
+        (food (get (take-consumption-from player-with-very-heavy-consumption) game-data))=> 14
+        (food (get (take-consumption-from player-with-extreme-consumption) game-data))   => 12
+        (food (get (take-consumption-from player-who-cannot-pay-consumption) game-data)) => 0
+        (:paid   (get (take-consumption-from player-with-light-consumption) event-data))      => 1
+        (:paid   (get (take-consumption-from player-with-medium-consumption) event-data))     => 2
+        (:paid   (get (take-consumption-from player-with-heavy-consumption) event-data))      => 3
+        (:paid   (get (take-consumption-from player-with-very-heavy-consumption) event-data)) => 4
+        (:paid   (get (take-consumption-from player-with-extreme-consumption) event-data))    => 6
+        (:unpaid (get (take-consumption-from player-with-light-consumption) event-data))      => 0
+        (:unpaid (get (take-consumption-from player-with-medium-consumption) event-data))     => 0
+        (:unpaid (get (take-consumption-from player-with-heavy-consumption) event-data))      => 0
+        (:unpaid (get (take-consumption-from player-with-very-heavy-consumption) event-data)) => 0
+        (:unpaid (get (take-consumption-from player-with-extreme-consumption) event-data))    => 0
+        (:unpaid (get (take-consumption-from player-who-cannot-pay-consumption) event-data))  => 1
+        (:supply (get (take-consumption-from player-without-consumption) game-data))          => 16
+        (:supply (get (take-consumption-from player-with-light-consumption) game-data))       => 9
+        (:supply (get (take-consumption-from player-with-medium-consumption) game-data))      => 6
+        (:supply (get (take-consumption-from player-with-heavy-consumption) game-data))       => 3
+        (:supply (get (take-consumption-from player-who-cannot-pay-consumption) game-data))   => 0))
+
 (fact
   (get-in (produce-food sample-game-state)
           [game-data :players 0 :commodities :food]) => 2

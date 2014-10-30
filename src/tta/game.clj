@@ -65,6 +65,16 @@
       (< supply 9) 2
       :else        0)))
 
+(defn consumption [player]
+  (let [pop (:population-bank player)]
+    (cond
+     (= pop 0)  6
+     (< pop 5)  4
+     (< pop 9)  3
+     (< pop 13) 2
+     (< pop 17) 1
+     :else      0)))
+
 (defn take-corruption-from [player]
   (let [corruption (corruption player)
         paid-corruption (min corruption
@@ -75,6 +85,17 @@
        (update-in [:supply] #(+ % paid-corruption)))
      {:paid paid-corruption
       :unpaid unpaid-corruption}]))
+
+(defn take-consumption-from [player]
+  (let [consumption (consumption player)
+        paid-consumption (min consumption
+                              (get-in player [:commodities :food]))
+        unpaid-consumption (- consumption paid-consumption)]
+    [(-> player
+         (update-in [:commodities :food] #(- % paid-consumption))
+         (update-in [:supply] #(+ % paid-consumption)))
+     {:paid paid-consumption
+      :unpaid unpaid-consumption}]))
 
 (defn singleton? [coll]
   (and (not (empty? coll))
@@ -124,9 +145,21 @@
                  )]
     [updated-game events]))
 
+(defn pay-consumption [game]
+  (let [[updated-game amounts] (update-player-with take-consumption-from game)
+        paid-consumption-event (if (pos? (:paid amounts))
+                                 [(str "Paid " (:paid amounts) " food in consumption.")]
+                                 [])
+        unpaid-consumption-event (if (pos? (:unpaid amounts))
+                                   [(str (:unpaid amounts) " consumption left unpaid.")]
+                                   [])
+        events (concat paid-consumption-event unpaid-consumption-event)]
+    [updated-game events]))
+
 (defn production-phase [game]
   (with-monad event-m
     ((m-chain [produce-food
+               pay-consumption
                produce-resources
                pay-corruption])
      game)))
