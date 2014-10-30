@@ -16,10 +16,8 @@
 (def current-game (atom game/sample-game-state))
 
 (def actions
-  {"pass"
-     (fn [] (swap! current-game game/end-turn))
-   "increase-population"
-     (fn [] (swap! current-game game/increase-population))})
+  {"pass" game/end-turn
+   "increase-population" game/increase-population})
 
 (defroutes tta-routes
   (GET "/" []
@@ -28,8 +26,7 @@
        {:status 200
         :body @current-game})
   (POST "/api/game/actions" [action]
-        (println (pr-str action))
-        ((get actions action))
+        (swap! current-game (get actions action))
         {:status 200
          :body ["jee"]})
   (POST "/api/game/reset" []
