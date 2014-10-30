@@ -119,8 +119,8 @@
                                   [:worker-pool] 3
                                   [:population-bank] 16))
                 sample-game-state)
-        updated-player (current-player (get (increase-population game) game-data))
-        updated-player2 (current-player (get (increase-population game2) game-data))]
+        updated-player (current-player (get (increase-population-action game) game-data))
+        updated-player2 (current-player (get (increase-population-action game2) game-data))]
     updated-player => (contains {:worker-pool 2, :population-bank 17
                                  :commodities (contains {:food 1})})
     updated-player2 => (contains {:worker-pool 4, :population-bank 15
@@ -134,12 +134,12 @@
                                  [:worker-pool] 0
                                  [:population-bank] 0 ))
                sample-game-state)]
-    (current-player (get (increase-population game) game-data))
+    (current-player (get (increase-population-action game) game-data))
       => (contains {:worker-pool 0, :population-bank 0
                     :commodities (contains {:food 10})})))
 
 (fact "Cannot increase population without sufficient food"
-  (let [updated-player (current-player (get (increase-population sample-game-state)
+  (let [updated-player (current-player (get (increase-population-action sample-game-state)
                                             game-data))]
     (:worker-pool updated-player) => 1))
 

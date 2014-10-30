@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.1.8"]
                  [ring/ring-jetty-adapter "1.2.2"]
+                 [ring-middleware-format "0.4.0"]
                  [environ "0.5.0"]
                  [jayq "2.5.2"]
                  [hiccups "0.3.0"]

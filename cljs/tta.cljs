@@ -48,7 +48,8 @@
   (bind ($ :#pass) "click"
     (fn [event]
       (let-ajax [_ {:url "/api/game/actions"
-                    :data "pass"
+                    :data {:action "pass"}
+                    :contentType "application/edn"
                     :type "POST"}]
         (refresh-game))))
 
@@ -57,5 +58,13 @@
       (let-ajax [_ {:url "/api/game/reset"
                     :data ""
                     :type "POST"}]
-        (refresh-game)))))
+                (refresh-game))))
+
+  (bind ($ :#increase-population) "click"
+        (fn [event]
+          (let-ajax [_ {:url "/api/game/actions"
+                        :data {:action "increase-population"}
+                        :contentType "application/edn"
+                        :type "POST"}]
+                    (refresh-game)))))
 

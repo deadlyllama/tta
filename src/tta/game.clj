@@ -148,20 +148,27 @@
           (< bank 17) 3
           :else       2)))
 
-(defn increase-population [game]
+(defn increase-population-action [game]
   (let [current-player (current-player game)
         cost (population-increase-cost current-player)]
     (cond (< (get-in current-player [:commodities :food]) cost)
-            [game "Can't increase population without sufficient food"]
+            [game ["Can't increase population without sufficient food"]]
           (zero? (:population-bank current-player))
-            [game "Can't increase population with empty population bank"]
+            [game ["Can't increase population with empty population bank"]]
           :else
             [(-> game
                (update-current-player [:worker-pool] inc)
                (update-current-player [:population-bank] dec)
                (update-current-player [:commodities :food] #(- % cost)))
              [(str "Increased population for " cost " food")]])))
-    
+
+(defn increase-population [game]
+  (let [[updated-game events] (increase-population-action game)
+        with-events (assoc-in updated-game
+                              [:players (:current-player game) :events]
+                              events)]
+    with-events))
+
 
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)
