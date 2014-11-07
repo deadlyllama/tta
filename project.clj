@@ -16,7 +16,7 @@
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-cljsbuild "1.0.3"]
             [lein-ring "0.8.13"]]
-  :hooks [environ.leiningen.hooks leiningen.cljsbuild]
+  :hooks [leiningen.cljsbuild]
   :uberjar-name "tta.jar"
   :profiles {:production {:env {:production true}}
              :dev {:dependencies [[midje "1.6.3"]]
