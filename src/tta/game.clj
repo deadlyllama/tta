@@ -220,6 +220,18 @@
            ["not enough resources to build a farm"]]))
       game)))
 
+(defn build-mine [game]
+  (associate-events-to-current-player
+    (update-player-with
+      (fn [player]
+        (if (<= 2 (get-in player [:commodities :resources]))
+          [(-> player
+               (update-in [:buildings :mine] inc)
+               (update-in [:commodities :resources] #(- % 2)))
+           ["built mine for " 2 " resources"]]
+          [player
+           ["not enough resources to build a mine"]]))
+      game)))
 
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)

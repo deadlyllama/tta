@@ -203,3 +203,17 @@
                      (get-in (current-player game) [:buildings :farm]))]
     (farm-count insufficient-resources) => 2
     (farm-count sufficient-resources) => 3))
+
+(facts "build-mine"
+  (let [insufficient-resources (build-mine sample-game-state)
+        game (eventless-update-player-with
+               (fn [player]
+                 (assoc-in player
+                           [:commodities :resources]
+                           2))
+               sample-game-state)
+        sufficient-resources (build-mine game)
+        mine-count (fn [game]
+                     (get-in (current-player game) [:buildings :mine]))]
+    (mine-count insufficient-resources) => 2
+    (mine-count sufficient-resources) => 3))

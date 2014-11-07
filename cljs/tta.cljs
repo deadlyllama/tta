@@ -42,37 +42,26 @@
   (let-ajax [game {:url "/api/game"}]
     (html ($ :#game) (render-game game))))
 
+(defn bind-action [button action]
+  (bind button "click"
+        (fn [event]
+          (let-ajax [_ {:url "/api/game/actions"
+                        :data {:action action}
+                        :contentType "application/edn"
+                        :type "POST"}]
+            (refresh-game)))))
+
 (ready
   (refresh-game)
 
-  (bind ($ :#pass) "click"
-    (fn [event]
-      (let-ajax [_ {:url "/api/game/actions"
-                    :data {:action "pass"}
-                    :contentType "application/edn"
-                    :type "POST"}]
-        (refresh-game))))
+  (bind-action ($ :#pass) "pass")
+  (bind-action ($ :#increase-population) "increase-population")
+  (bind-action ($ :#build-farm) "build-farm")
+  (bind-action ($ :#build-mine) "build-mine")
 
   (bind ($ :#reset) "click"
     (fn [event]
       (let-ajax [_ {:url "/api/game/reset"
                     :data ""
                     :type "POST"}]
-                (refresh-game))))
-
-  (bind ($ :#increase-population) "click"
-        (fn [event]
-          (let-ajax [_ {:url "/api/game/actions"
-                        :data {:action "increase-population"}
-                        :contentType "application/edn"
-                        :type "POST"}]
-                    (refresh-game))))
-
-  (bind ($ :#build-farm) "click"
-        (fn [event]
-          (let-ajax [_ {:url "/api/game/actions"
-                        :data {:action "build-farm"}
-                        :contentType "application/edn"
-                        :type "POST"}]
-            (refresh-game)))))
-
+                (refresh-game)))))

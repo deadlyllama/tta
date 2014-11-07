@@ -18,7 +18,8 @@
 (def actions
   {"pass" game/end-turn
    "increase-population" game/increase-population
-   "build-farm" game/build-farm})
+   "build-farm" game/build-farm
+   "build-mine" game/build-mine})
 
 (defroutes tta-routes
   (GET "/" []
