@@ -26,6 +26,11 @@
    [:h4 "Population bank"]
    [:ul
     [:li (str "balance: " (:population-bank player))]]
+   [:h4 "Civil actions"]
+   [:ul
+    [:li (str (get-in player [:civil-actions :remaining])
+              "/"
+              (get-in player [:civil-actions :total]))]]
    [:h4 "Events"]
    [:ul (for [event (:events player)]
           [:li event])]])

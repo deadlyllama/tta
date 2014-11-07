@@ -6,7 +6,8 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.format :refer [wrap-restful-format]]
             [environ.core :refer [env]]
-            [tta.game :as game]))
+            [tta.game :as game]
+            [tta.actions :as actions]))
 
 (defn splash []
   {:status 200
@@ -17,9 +18,10 @@
 
 (def actions
   {"pass" game/end-turn
-   "increase-population" game/increase-population
-   "build-farm" game/build-farm
-   "build-mine" game/build-mine})
+   "increase-population" (partial game/attempt-action
+                                  actions/increase-population)
+   "build-mine" (partial game/attempt-action actions/build-mine)
+   "build-farm" (partial game/attempt-action actions/build-farm)})
 
 (defroutes tta-routes
   (GET "/" []

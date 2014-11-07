@@ -2,26 +2,17 @@
   (:use [midje.sweet :only [facts fact => contains]]
         ;no bullshit, only  facts
         [clojure.algo.monads :only [domonad]]
-        tta.game))
-
-(fact
-  (:name (create-player "Juhana")) => "Juhana")
+        tta.game
+        tta.utils)
+  (:require [tta.player :as player]))
 
 (fact (player-count sample-game-state) => 3)
-
-(fact "multi-assoc-in"
-  (let [player (current-player sample-game-state)]
-    (multi-assoc-in player [:commodities :resources] 2
-                           [:supply]                 4) =>
-    (-> player (assoc-in [:commodities :resources] 2)
-               (assoc-in [:supply]                 4)))
-  (multi-assoc-in {:key 1} [:key] 2 [:key] 3) => {:key 3})
 
 (def game-data 0)
 (def event-data 1)
 
 (fact "Corruption reduces resources and increases supply"
-  (let [player (current-player sample-game-state)
+  (let [player (player/current-player sample-game-state)
         player-with-resources-and-supply
           (fn [resources supply]
             (multi-assoc-in player
@@ -55,7 +46,7 @@
     (:supply (get (take-corruption-from player-who-cannot-pay-corruption) game-data))   => 3))
 
 (fact "Consumption reduces food and increases supply"
-      (let [player (current-player sample-game-state)
+      (let [player (player/current-player sample-game-state)
             player-with
             (fn [& {:keys [supply food population-bank]}]
               (multi-assoc-in player
@@ -94,7 +85,7 @@
         (:supply (get (take-consumption-from player-with-heavy-consumption) game-data))       => 3
         (:supply (get (take-consumption-from player-who-cannot-pay-consumption) game-data))   => 0))
 
-(fact
+(fact "produce-food"
   (get-in (produce-food sample-game-state)
           [game-data :players 0 :commodities :food]) => 2
   (get-in (produce-food (assoc sample-game-state :current-player 1))
@@ -102,7 +93,7 @@
   (get-in (produce-food (get (produce-food sample-game-state) game-data))
           [game-data :players 0 :commodities :food]) => 4)
 
-(fact
+(fact "produce-resources"
   (get-in (produce-resources sample-game-state)
           [game-data :players 0 :commodities :resources]) => 2
   (get-in (produce-resources (assoc sample-game-state :current-player 1))
@@ -120,7 +111,7 @@
   (get-in (produce-resources (get (produce-resources sample-game-state) game-data))
           [game-data :players 0 :supply]) => 14
   (fact "Production cannot exceed supply"
-    (let [player (multi-assoc-in (current-player sample-game-state)
+    (let [player (multi-assoc-in (player/current-player sample-game-state)
                                  [:supply] 1
                                  [:commodities :food] 0)
           game-state (get (produce-food
@@ -128,8 +119,8 @@
                                       [:players (:current-player sample-game-state)]
                                       player))
                           game-data)]
-        (:supply (current-player game-state)) => 0
-        (get-in (current-player game-state)
+        (:supply (player/current-player game-state)) => 0
+        (get-in (player/current-player game-state)
                 [:commodities :food]) => 1)))
 
 (fact "ending a turn rotates to next player,
@@ -140,49 +131,6 @@
     (:current-player (end-turn game2)) => 0
     (:current-round (end-turn game2)) => 2))
 
-(fact "eventless-update-player-with"
-  (->> sample-game-state
-       (eventless-update-player-with (fn [player]
-                                       (assoc player :population-bank 5)))
-       current-player
-       :population-bank)
-  => 5)
-
-(facts "Increasing population"
-  (let [game (assoc-in sample-game-state
-                       [:players (:current-player sample-game-state) :commodities :food]
-                       3)
-        game2 (eventless-update-player-with
-                (fn [player]
-                  (multi-assoc-in player
-                                  [:commodities :food] 3
-                                  [:worker-pool] 3
-                                  [:population-bank] 16))
-                sample-game-state)
-        updated-player (current-player (get (increase-population-action game) game-data))
-        updated-player2 (current-player (get (increase-population-action game2) game-data))]
-    updated-player => (contains {:worker-pool 2, :population-bank 17
-                                 :commodities (contains {:food 1})})
-    updated-player2 => (contains {:worker-pool 4, :population-bank 15
-                                  :commodities (contains {:food 0})})))
-
-(fact "Cannot increase population with empty population bank"
-  (let [game (eventless-update-player-with
-               (fn [player]
-                 (multi-assoc-in player
-                                 [:commodities :food] 10
-                                 [:worker-pool] 0
-                                 [:population-bank] 0 ))
-               sample-game-state)]
-    (current-player (get (increase-population-action game) game-data))
-      => (contains {:worker-pool 0, :population-bank 0
-                    :commodities (contains {:food 10})})))
-
-(fact "Cannot increase population without sufficient food"
-  (let [updated-player (current-player (get (increase-population-action sample-game-state)
-                                            game-data))]
-    (:worker-pool updated-player) => 1))
-
 (facts "event-m"
   (let [lolinc (fn [x] [(inc x) ["lol"]])]
     (domonad event-m
@@ -190,30 +138,3 @@
              y (lolinc x)]
             y)) => [4 ["jee" "lol"]])
 
-(facts "build-farm"
-  (let [insufficient-resources (build-farm sample-game-state)
-        game (eventless-update-player-with
-               (fn [player]
-                 (assoc-in player
-                           [:commodities :resources]
-                           2))
-               sample-game-state)
-        sufficient-resources (build-farm game)
-        farm-count (fn [game]
-                     (get-in (current-player game) [:buildings :farm]))]
-    (farm-count insufficient-resources) => 2
-    (farm-count sufficient-resources) => 3))
-
-(facts "build-mine"
-  (let [insufficient-resources (build-mine sample-game-state)
-        game (eventless-update-player-with
-               (fn [player]
-                 (assoc-in player
-                           [:commodities :resources]
-                           2))
-               sample-game-state)
-        sufficient-resources (build-mine game)
-        mine-count (fn [game]
-                     (get-in (current-player game) [:buildings :mine]))]
-    (mine-count insufficient-resources) => 2
-    (mine-count sufficient-resources) => 3))
