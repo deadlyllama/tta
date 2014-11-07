@@ -202,6 +202,24 @@
                               events)]
     with-events))
 
+(defn associate-events-to-current-player [[game events]]
+  (assoc-in game
+            [:players (:current-player game) :events]
+            events))
+
+(defn build-farm [game]
+  (associate-events-to-current-player
+    (update-player-with
+      (fn [player]
+        (if (<= 2 (get-in player [:commodities :resources]))
+          [(-> player
+               (update-in [:buildings :farm] inc)
+               (update-in [:commodities :resources] #(- % 2)))
+           ["built farm for " 2 " resources"]]
+          [player
+           ["not enough resources to build a farm"]]))
+      game)))
+
 
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)

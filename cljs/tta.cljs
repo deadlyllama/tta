@@ -66,5 +66,13 @@
                         :data {:action "increase-population"}
                         :contentType "application/edn"
                         :type "POST"}]
-                    (refresh-game)))))
+                    (refresh-game))))
+
+  (bind ($ :#build-farm) "click"
+        (fn [event]
+          (let-ajax [_ {:url "/api/game/actions"
+                        :data {:action "build-farm"}
+                        :contentType "application/edn"
+                        :type "POST"}]
+            (refresh-game)))))
 

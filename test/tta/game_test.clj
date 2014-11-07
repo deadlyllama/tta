@@ -183,10 +183,23 @@
                                             game-data))]
     (:worker-pool updated-player) => 1))
 
-
 (facts "event-m"
   (let [lolinc (fn [x] [(inc x) ["lol"]])]
     (domonad event-m
             [x [3 ["jee"]]
              y (lolinc x)]
             y)) => [4 ["jee" "lol"]])
+
+(facts "build-farm"
+  (let [insufficient-resources (build-farm sample-game-state)
+        game (eventless-update-player-with
+               (fn [player]
+                 (assoc-in player
+                           [:commodities :resources]
+                           2))
+               sample-game-state)
+        sufficient-resources (build-farm game)
+        farm-count (fn [game]
+                     (get-in (current-player game) [:buildings :farm]))]
+    (farm-count insufficient-resources) => 2
+    (farm-count sufficient-resources) => 3))
