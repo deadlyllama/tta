@@ -5,15 +5,21 @@
   (player/associate-events-to-current-player
     (player/update-player-with
       (fn [player]
-        (if (<= 2 (get-in player [:commodities :resources]))
-          [(-> player
-               (update-in [:buildings building] inc)
-               (update-in [:commodities :resources] #(- % 2)))
-           [(str "built a " building-name " for " 2 " resources")]
-           true]
-          [player
-           [(str "not enough resources to build a " building-name)]
-           false]))
+        (cond (and (<= 2 (get-in player [:commodities :resources]))
+                   (<= 1 (:worker-pool player)))
+                [(-> player
+                  (update-in [:buildings building] inc)
+                  (update-in [:commodities :resources] #(- % 2)))
+                [(str "built a " building-name " for " 2 " resources")]
+                true]
+              (<= 2 (get-in player [:commodities :resources]))
+                [player
+                 ["no workers in worker pool"]
+                 false]
+              :else
+                [player
+                 [(str "not enough resources to build a " building-name)]
+                 false]))
       game)))
 
 (defn build-farm [game]

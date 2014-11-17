@@ -47,16 +47,25 @@
 
 (facts "build-farm"
   (let [[insufficient-resources] (build-farm sample-game-state)
+        game-without-working-pool
+          (player/eventless-update-player-with
+            (fn [player]
+              (multi-assoc-in player
+                              [:commodities :resources]
+                              2
+                              [:worker-pool]
+                              0))
+            sample-game-state)
+        [insufficient-working-pool] (build-farm game-without-working-pool)
         game (player/eventless-update-player-with
                (fn [player]
-                 (assoc-in player
-                           [:commodities :resources]
-                           2))
-               sample-game-state)
+                 (assoc player :worker-pool 1))
+               game-without-working-pool)
         [sufficient-resources] (build-farm game)
         farm-count (fn [game]
                      (get-in (player/current-player game) [:buildings :farm]))]
     (farm-count insufficient-resources) => 2
+    (farm-count insufficient-working-pool) => 2
     (farm-count sufficient-resources) => 3))
 
 (facts "build-mine"
