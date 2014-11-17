@@ -1,35 +1,26 @@
 (ns tta.actions
   (:require [tta.player :as player]))
 
-(defn build-farm [game]
+(defn build-building [game building building-name]
   (player/associate-events-to-current-player
     (player/update-player-with
       (fn [player]
         (if (<= 2 (get-in player [:commodities :resources]))
           [(-> player
-               (update-in [:buildings :farm] inc)
+               (update-in [:buildings building] inc)
                (update-in [:commodities :resources] #(- % 2)))
-           ["built farm for " 2 " resources"]
+           [(str "built a " building-name " for " 2 " resources")]
            true]
           [player
-           ["not enough resources to build a farm"]
+           [(str "not enough resources to build a " building-name)]
            false]))
       game)))
 
+(defn build-farm [game]
+  (build-building game :farm "farm"))
+
 (defn build-mine [game]
-  (player/associate-events-to-current-player
-    (player/update-player-with
-      (fn [a-player]
-        (if (<= 2 (get-in a-player [:commodities :resources]))
-          [(-> a-player
-               (update-in [:buildings :mine] inc)
-               (update-in [:commodities :resources] #(- % 2)))
-           ["built mine for " 2 " resources"]
-           true]
-          [a-player
-           ["not enough resources to build a mine"]
-           false]))
-      game)))
+  (build-building game :mine "mine"))
 
 (defn population-increase-cost [a-player]
   (let [bank (:population-bank a-player)]
