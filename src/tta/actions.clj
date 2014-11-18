@@ -8,8 +8,9 @@
         (cond (and (<= 2 (get-in player [:commodities :resources]))
                    (<= 1 (:worker-pool player)))
                 [(-> player
-                  (update-in [:buildings building] inc)
-                  (update-in [:commodities :resources] #(- % 2)))
+                   (update-in [:buildings building] inc)
+                   (update-in [:commodities :resources] #(- % 2))
+                   (update-in [:civil-actions :remaining] dec))
                 [(str "built a " building-name " for " 2 " resources")]
                 true]
               (<= 2 (get-in player [:commodities :resources]))

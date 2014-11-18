@@ -63,10 +63,14 @@
                game-without-working-pool)
         [sufficient-resources] (build-farm game)
         farm-count (fn [game]
-                     (get-in (player/current-player game) [:buildings :farm]))]
+                     (get-in (player/current-player game) [:buildings :farm]))
+        actions-remaining (fn [game]
+                            (get-in (player/current-player game) [:civil-actions :remaining]))]
     (farm-count insufficient-resources) => 2
+    (actions-remaining insufficient-resources) => 4
     (farm-count insufficient-working-pool) => 2
-    (farm-count sufficient-resources) => 3))
+    (farm-count sufficient-resources) => 3
+    (actions-remaining sufficient-resources) => 3))
 
 (facts "build-mine"
   (let [insufficient-resources (game-state (build-mine sample-game-state))
