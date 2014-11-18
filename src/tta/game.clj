@@ -119,12 +119,18 @@
         events (concat paid-consumption-event unpaid-consumption-event)]
     [updated-game events]))
 
+(defn reset-actions [game]
+  (let [updated-game (player/assoc-in-current-player
+                       game [:civil-actions :remaining] 4)]
+    [updated-game []]))
+
 (defn production-phase [game]
   (with-monad event-m
     ((m-chain [produce-food
                pay-consumption
                produce-resources
-               pay-corruption])
+               pay-corruption
+               reset-actions])
      game)))
 
 (defn attempt-action [f game]

@@ -131,6 +131,12 @@
     (:current-player (end-turn game2)) => 0
     (:current-round (end-turn game2)) => 2))
 
+(fact "ending a turn resets actions"
+  (let [game (player/assoc-in-current-player
+               sample-game-state [:civil-actions :remaining] 2)]
+    (get-in (end-turn game)
+            [:players 0 :civil-actions :remaining]) => 4))
+
 (facts "event-m"
   (let [lolinc (fn [x] [(inc x) ["lol"]])]
     (domonad event-m

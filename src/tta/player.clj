@@ -33,6 +33,11 @@
       (update-in player path f))
     game))
 
+(defn assoc-in-current-player [game path a-val]
+  (eventless-update-player-with
+    (fn [player] (assoc-in player path a-val))
+    game))
+
 (defn update-player-with [f game]
   (let [player (current-player game)
         [updated-player data] (f player)
