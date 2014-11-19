@@ -1,6 +1,52 @@
 (ns tta.actions
   (:require [tta.player :as player]))
 
+(defn decrease-resource [game resource-path amount error-message]
+  (if (<= amount
+          (get-in (player/current-player game) resource-path) amount)
+    {:result (player/update-current-player
+               game resource-path #(- % amount))
+     :succeed? true
+     :messages []}
+    {:result game
+     :succeed? false
+     :messages [error-message]}))
+
+(defn increase-resource [game resource-path amount]
+  {:result (player/update-current-player
+             game resource-path #(+ % amount))
+   :succeed? true
+   :messages []})
+
+(defn decrease-worker-pool [game]
+  (decrease-resource game [:worker-pool] 1 "empty worker pool"))
+
+(defn decrease-population-pool [game]
+  (decrease-resource game [:population-pool] 2 "empty population pool"))
+
+(defn increase-worker-pool [game]
+  (increase-resource game [:worker-pool] 1))
+
+(defn increase-mines [game]
+  (increase-resource game [:buildings :mine] 1))
+
+(defn combine [action & actions]
+  (fn [game]
+    (if (empty? actions)
+      (action game)
+      (let [result (action game)]
+        (if (:succeed? result)
+          (let [combined (apply combine actions)
+                result2 (combined (:result result))]
+            (if (:succeed? result2)
+              result2
+              {:result game
+               :succeed? false
+               :messages (:messages result2)}))
+          {:result game
+           :succeed? false
+           :messages (:messages result)})))))
+
 (defn build-building [game building building-name]
   (player/associate-events-to-current-player
     (player/update-player-with

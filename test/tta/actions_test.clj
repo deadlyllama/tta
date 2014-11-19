@@ -7,6 +7,22 @@
         [tta.game :only [sample-game-state]])
   (:require [tta.player :as player]))
 
+(facts "combine actions"
+  (let [game sample-game-state
+        combined1 (combine increase-mines
+                           increase-mines
+                           decrease-worker-pool)
+        result1 (combined1 game)
+        player1 (player/current-player (:result result1))
+        combined-fails (combine increase-mines
+                                decrease-worker-pool
+                                decrease-worker-pool)
+        result-fails (combined-fails game)]
+    (get-in player1 [:buildings :mine]) => 4
+    (get-in player1 [:worker-pool]) => 0
+    (:succeed? result-fails) => false
+    (:result result-fails) => game))
+
 (defn game-state [result] (get result 0))
 (defn action-success? [result] (get result 1))
 
