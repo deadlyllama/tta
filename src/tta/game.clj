@@ -84,12 +84,12 @@
 (defn produce-food [game]
   (let [[updated-game amount]
           (player/update-player-with #(produce-from :farm :food %) game)]
-    [updated-game [(str "Produced " amount " food")]]))
+    [updated-game [(str "Produced " amount " food.")]]))
 
 (defn produce-resources [game]
   (let [[updated-game amount]
           (player/update-player-with #(produce-from :mine :resources %) game)]
-    [updated-game [(str "Produced " amount " resources")]]))
+    [updated-game [(str "Produced " amount " resources.")]]))
 
 (defn pay-corruption [game]
   (let [[updated-game amounts]
@@ -133,20 +133,11 @@
                reset-actions])
      game)))
 
-(defn attempt-action [f game]
-  (let [[after-action success] (f game)
-        actions-remaining? (fn [game]
-                            (pos? (get-in (player/current-player game)
-                                          [:civil-actions :remaining])))
-        pay-for-action (fn [game]
-                         (player/update-in-current-player
-                           game [:civil-actions :remaining] dec))]
-    (if (actions-remaining? game)
-      (if success
-        (pay-for-action after-action)
-        after-action)
-      (player/associate-events-to-current-player
-        [game ["no civil actions remaining"]]))))
+(defn attempt-action [action game]
+  (let [result (actions/run-action action game)]
+    (player/associate-events-to-current-player
+      (:result result)
+      (:messages result))))
 
 (defn end-turn [game]
   (let [[updated-game events] (production-phase game)

@@ -1,79 +1,76 @@
 (ns tta.actions
-  (:require [tta.player :as player]))
+  (:require [tta.player :as player]
+            [clojure.set :as set]))
 
-(defn decrease-resource [game resource-path amount error-message]
-  (if (<= amount
-          (get-in (player/current-player game) resource-path) amount)
-    {:result (player/update-current-player
-               game resource-path #(- % amount))
-     :succeed? true
-     :messages []}
-    {:result game
-     :succeed? false
-     :messages [error-message]}))
+(defn- combine2 [action1 action2]
+  {:requirements (set/union (:requirements action1)
+                            (:requirements action2))
+   :action (comp (:action action1)
+                 (:action action2))})
 
-(defn increase-resource [game resource-path amount]
-  {:result (player/update-current-player
-             game resource-path #(+ % amount))
-   :succeed? true
-   :messages []})
+(def identity-action
+  {:requirements #{}
+   :action identity})
 
-(defn decrease-worker-pool [game]
-  (decrease-resource game [:worker-pool] 1 "empty worker pool"))
+(defn combine [& actions]
+  (reduce combine2 identity-action actions))
 
-(defn decrease-population-pool [game]
-  (decrease-resource game [:population-pool] 2 "empty population pool"))
+(defn run-action [action game]
+  (let [requirement-results (map #(% game)
+                                 (:requirements action))
+        failing (filter (complement :ok?) requirement-results)
+        failing-messages (set (mapcat :messages failing))]
+    (if (empty? failing)
+      {:result ((:action action) game)
+       :ok? true
+       :messages #{}}
+      {:result game
+       :ok? false
+       :messages failing-messages})))
 
-(defn increase-worker-pool [game]
-  (increase-resource game [:worker-pool] 1))
+(defn decrease-resource [resource-path amount error-message]
+  {:requirements
+     #{(fn [game]
+         (println resource-path)
+         (if (<= amount
+                 (get-in (player/current-player game) resource-path))
+           {:ok? true
+            :messages []}
+           {:ok? false
+            :messages [error-message]}))}
+   :action (fn [game]
+             (player/update-current-player
+               game resource-path #(- % amount)))})
 
-(defn increase-mines [game]
-  (increase-resource game [:buildings :mine] 1))
+(defn increase-resource [resource-path amount]
+  {:requirements #{}
+   :action (fn [game]
+             (player/update-current-player
+               game resource-path #(+ % amount)))})
 
-(defn combine [action & actions]
-  (fn [game]
-    (if (empty? actions)
-      (action game)
-      (let [result (action game)]
-        (if (:succeed? result)
-          (let [combined (apply combine actions)
-                result2 (combined (:result result))]
-            (if (:succeed? result2)
-              result2
-              {:result game
-               :succeed? false
-               :messages (:messages result2)}))
-          {:result game
-           :succeed? false
-           :messages (:messages result)})))))
+(def decrease-worker-pool
+  (decrease-resource [:worker-pool] 1 "empty worker pool"))
 
-(defn build-building [game building building-name]
-  (player/associate-events-to-current-player
-    (player/update-player-with
-      (fn [player]
-        (cond (and (<= 2 (get-in player [:commodities :resources]))
-                   (<= 1 (:worker-pool player)))
-                [(-> player
-                   (update-in [:buildings building] inc)
-                   (update-in [:commodities :resources] #(- % 2))
-                   (update-in [:civil-actions :remaining] dec))
-                [(str "built a " building-name " for " 2 " resources")]
-                true]
-              (<= 2 (get-in player [:commodities :resources]))
-                [player
-                 ["no workers in worker pool"]
-                 false]
-              :else
-                [player
-                 [(str "not enough resources to build a " building-name)]
-                 false]))
-      game)))
+(def decrease-population-pool
+  (decrease-resource [:population-bank] 1 "empty population pool"))
 
-(defn build-farm [game]
-  (build-building game :farm "farm"))
+(def increase-worker-pool
+  (increase-resource [:worker-pool] 1))
 
-(defn build-mine [game]
-  (build-building game :mine "mine"))
+(def increase-mines
+  (increase-resource [:buildings :mine] 1))
+
+(def increase-farms
+  (increase-resource [:buildings :farm] 1))
+
+(defn decrease-resources-by [amount]
+  (decrease-resource [:commodities :resources] amount "not enough resources"))
+
+(defn decrease-food-by [amount]
+  (decrease-resource [:commodities :food] amount "not enough food"))
+
+(def pay-action
+  (decrease-resource [:civil-actions :remaining] 1 "no actions remaining"))
 
 (defn population-increase-cost [a-player]
   (let [bank (:population-bank a-player)]
@@ -83,22 +80,36 @@
           (< bank 17) 3
           :else       2)))
 
-(defn increase-population [game]
-  (player/associate-events-to-current-player
-    (let [current-player (player/current-player game)
-          cost (population-increase-cost current-player)]
-      (cond (< (get-in current-player [:commodities :food]) cost)
-              [game
-               ["Can't increase population without sufficient food"]
-               false]
-            (zero? (:population-bank current-player))
-              [game
-               ["Can't increase population with empty population bank"]
-               false]
-            :else
-              [(-> game
-                   (player/update-current-player [:worker-pool] inc)
-                   (player/update-current-player [:population-bank] dec)
-                   (player/update-current-player [:commodities :food] #(- % cost)))
-               [(str "Increased population for " cost " food")]
-               true]))))
+(def pay-population-increase-cost
+  {:requirements #{(fn [game]
+                     (if (<= (population-increase-cost (player/current-player game))
+                             (get-in (player/current-player game) [:commodities :food]))
+                       {:ok? true
+                        :messages #{}}
+                       {:ok? false
+                        :messages #{"not enough food"}}))}
+   :action (fn [game]
+             (player/update-current-player
+               game
+               [:commodities :food]
+               #(- % (population-increase-cost (player/current-player game)))))})
+
+(def increase-population-action
+  (combine decrease-population-pool
+           increase-worker-pool
+           pay-action
+           pay-population-increase-cost))
+
+(def build-farm-action
+  (combine 
+    increase-farms
+    (decrease-resources-by 2)
+    pay-action
+    decrease-worker-pool
+    ))
+
+(def build-mine-action
+  (combine increase-mines
+           (decrease-resources-by 2)
+           pay-action
+           decrease-worker-pool))

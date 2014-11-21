@@ -46,8 +46,7 @@
                                updated-player)]
     [updated-game data]))
 
-(defn associate-events-to-current-player [[game events success?]]
-  [(assoc-in game
-             [:players (:current-player game) :events]
-             events)
-   success?])
+(defn associate-events-to-current-player [game events]
+  (assoc-in game
+            [:players (:current-player game) :events]
+            events))
