@@ -101,11 +101,18 @@
                  [:commodities :food]
                  #(- % (population-increase-cost (player/current-player game))))))})
 
+(defn write-message [message]
+  {:requirements #{}
+   :action (fn [a-value]
+             {:result a-value
+              :messages [message]})})
+
 (def increase-population-action
   (combine decrease-population-pool
            increase-worker-pool
            pay-action
-           pay-population-increase-cost))
+           pay-population-increase-cost
+           (write-message "Increased population.")))
 
 (def build-farm-action
   (combine 
@@ -113,10 +120,11 @@
     (decrease-resources-by 2)
     pay-action
     decrease-worker-pool
-    ))
+    (write-message "Built a farm.")))
 
 (def build-mine-action
   (combine increase-mines
            (decrease-resources-by 2)
            pay-action
-           decrease-worker-pool))
+           decrease-worker-pool
+           (write-message "Built a mine.")))
