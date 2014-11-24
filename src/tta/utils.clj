@@ -14,9 +14,12 @@
       (apply multi-assoc-in (assoc-in target path value)
                             rest-pairs))))
 
+(defn no-messages [a-value]
+  {:result a-value
+   :messages []})
+
 (defmonad message-m
-  [m-result (fn [a-value] {:result a-value
-                           :messages []})
+  [m-result no-messages
    m-bind   (fn [a-value f]
               (let [result (f (:result a-value))]
                 {:result (:result result)

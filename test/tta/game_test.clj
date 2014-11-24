@@ -87,29 +87,29 @@
 
 (fact "produce-food"
   (get-in (produce-food sample-game-state)
-          [game-data :players 0 :commodities :food]) => 2
+          [:result :players 0 :commodities :food]) => 2
   (get-in (produce-food (assoc sample-game-state :current-player 1))
-          [game-data :players 1 :commodities :food]) => 2
-  (get-in (produce-food (get (produce-food sample-game-state) game-data))
-          [game-data :players 0 :commodities :food]) => 4)
+          [:result :players 1 :commodities :food]) => 2
+  (get-in (produce-food (get (produce-food sample-game-state) :result))
+          [:result :players 0 :commodities :food]) => 4)
 
 (fact "produce-resources"
   (get-in (produce-resources sample-game-state)
-          [game-data :players 0 :commodities :resources]) => 2
+          [:result :players 0 :commodities :resources]) => 2
   (get-in (produce-resources (assoc sample-game-state :current-player 1))
-          [game-data :players 1 :commodities :resources]) => 2
-  (get-in (produce-resources (get (produce-resources sample-game-state) game-data))
-          [game-data :players 0 :commodities :resources]) => 4)
+          [:result :players 1 :commodities :resources]) => 2
+  (get-in (produce-resources (get (produce-resources sample-game-state) :result))
+          [:result :players 0 :commodities :resources]) => 4)
 
 (fact "Production reduces supply"
   (get-in (produce-food sample-game-state)
-          [game-data :players 0 :supply]) => 16
+          [:result :players 0 :supply]) => 16
   (get-in (produce-resources sample-game-state)
-          [game-data :players 0 :supply]) => 16
-  (get-in (produce-food (get (produce-food sample-game-state) game-data))
-          [game-data :players 0 :supply]) => 14
-  (get-in (produce-resources (get (produce-resources sample-game-state) game-data))
-          [game-data :players 0 :supply]) => 14
+          [:result :players 0 :supply]) => 16
+  (get-in (produce-food (get (produce-food sample-game-state) :result))
+          [:result :players 0 :supply]) => 14
+  (get-in (produce-resources (get (produce-resources sample-game-state) :result))
+          [:result :players 0 :supply]) => 14
   (fact "Production cannot exceed supply"
     (let [player (multi-assoc-in (player/current-player sample-game-state)
                                  [:supply] 1
@@ -118,7 +118,7 @@
                             (assoc-in sample-game-state
                                       [:players (:current-player sample-game-state)]
                                       player))
-                          game-data)]
+                          :result)]
         (:supply (player/current-player game-state)) => 0
         (get-in (player/current-player game-state)
                 [:commodities :food]) => 1)))
@@ -136,11 +136,3 @@
                sample-game-state [:civil-actions :remaining] 2)]
     (get-in (end-turn game)
             [:players 0 :civil-actions :remaining]) => 4))
-
-(facts "event-m"
-  (let [lolinc (fn [x] [(inc x) ["lol"]])]
-    (domonad event-m
-            [x [3 ["jee"]]
-             y (lolinc x)]
-            y)) => [4 ["jee" "lol"]])
-

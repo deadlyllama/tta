@@ -1,13 +1,8 @@
 (ns tta.game
-  (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]])
+  (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]]
+        [tta.utils :only [message-m no-messages]])
   (:require [tta.actions :as actions]
             [tta.player :as player]))
-
-(defmonad event-m
-  [m-result (fn [a-value] [a-value []])
-   m-bind   (fn [[a-value events] f]
-              (let [[f-value f-events] (f a-value)]
-                [f-value (concat events f-events)]))])
 
 (def sample-game-state
   {:players [(player/create-player "Laura")
@@ -84,12 +79,14 @@
 (defn produce-food [game]
   (let [[updated-game amount]
           (player/update-player-with #(produce-from :farm :food %) game)]
-    [updated-game [(str "Produced " amount " food.")]]))
+    {:result updated-game
+     :messages [(str "Produced " amount " food.")]}))
 
 (defn produce-resources [game]
   (let [[updated-game amount]
           (player/update-player-with #(produce-from :mine :resources %) game)]
-    [updated-game [(str "Produced " amount " resources.")]]))
+    {:result updated-game
+     :messages [(str "Produced " amount " resources.")]}))
 
 (defn pay-corruption [game]
   (let [[updated-game amounts]
@@ -102,11 +99,12 @@
                                   (if (pos? (:unpaid amounts))
                                     (conj events (str (:unpaid amounts) " corruption left unpaid."))
                                     events))
-        events (-> []
-                 paid-corruption-event
-                 unpaid-corruption-event
-                 )]
-    [updated-game events]))
+        messages (-> []
+                   paid-corruption-event
+                   unpaid-corruption-event
+                   )]
+    {:result updated-game
+     :messages messages}))
 
 (defn pay-consumption [game]
   (let [[updated-game amounts] (player/update-player-with take-consumption-from game)
@@ -116,16 +114,19 @@
         unpaid-consumption-event (if (pos? (:unpaid amounts))
                                    [(str (:unpaid amounts) " consumption left unpaid.")]
                                    [])
-        events (concat paid-consumption-event unpaid-consumption-event)]
-    [updated-game events]))
+        messages (concat paid-consumption-event unpaid-consumption-event)]
+    {:result updated-game
+     :messages messages}))
 
 (defn reset-actions [game]
   (let [updated-game (player/assoc-in-current-player
-                       game [:civil-actions :remaining] 4)]
-    [updated-game []]))
+                       game
+                       [:civil-actions :remaining]
+                       (player/get-in-current-player game [:civil-actions :total]))]
+    (no-messages updated-game)))
 
 (defn production-phase [game]
-  (with-monad event-m
+  (with-monad message-m
     ((m-chain [produce-food
                pay-consumption
                produce-resources
@@ -140,10 +141,10 @@
       (:messages result))))
 
 (defn end-turn [game]
-  (let [[updated-game events] (production-phase game)
+  (let [{updated-game :result, messages :messages} (production-phase game)
         with-events (assoc-in updated-game
                               [:players (:current-player game) :events]
-                              events)]
+                              messages)]
     (if (last-players-turn? with-events)
       (next-round with-events)
       (next-player with-events))))
