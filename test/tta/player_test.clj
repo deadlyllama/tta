@@ -15,3 +15,5 @@
        :population-bank)
   => 5)
 
+(fact "get-in-current-player"
+  (get-in-current-player sample-game-state [:buildings :mine]) => 2)

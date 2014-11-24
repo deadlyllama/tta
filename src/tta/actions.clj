@@ -33,7 +33,7 @@
      #{(fn [game]
          (println resource-path)
          (if (<= amount
-                 (get-in (player/current-player game) resource-path))
+                 (player/get-in-current-player game resource-path))
            {:ok? true
             :messages []}
            {:ok? false
@@ -83,7 +83,7 @@
 (def pay-population-increase-cost
   {:requirements #{(fn [game]
                      (if (<= (population-increase-cost (player/current-player game))
-                             (get-in (player/current-player game) [:commodities :food]))
+                             (player/get-in-current-player game [:commodities :food]))
                        {:ok? true
                         :messages #{}}
                        {:ok? false

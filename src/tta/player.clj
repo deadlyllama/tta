@@ -38,6 +38,10 @@
     (fn [player] (assoc-in player path a-val))
     game))
 
+(defn get-in-current-player [game path]
+  (get-in (current-player game)
+          path))
+
 (defn update-player-with [f game]
   (let [player (current-player game)
         [updated-player data] (f player)

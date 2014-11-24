@@ -23,8 +23,7 @@
                                   :ok? false
                                   :messages #{"empty worker pool"}}
     (:worker-pool (player/current-player (:result result))) => 2
-    (get-in (player/current-player (:result result))
-            [:buildings :mine]) => 3))
+    (player/get-in-current-player (:result result) [:buildings :mine]) => 3))
 
 (defn game-state [result] (get result 0))
 (defn action-success? [result] (get result 1))
@@ -67,9 +66,10 @@
                  game-without-working-pool)
           [sufficient-resources] (build-farm game)
           farm-count (fn [game]
-                       (get-in (player/current-player game) [:buildings :farm]))
+                       (player/get-in-current-player game [:buildings :farm]))
           actions-remaining (fn [game]
-                              (get-in (player/current-player game) [:civil-actions :remaining]))]
+                              (player/get-in-current-player
+                                game [:civil-actions :remaining]))]
       (farm-count insufficient-resources) => 2
       (actions-remaining insufficient-resources) => 4
       (farm-count insufficient-working-pool) => 2
@@ -87,7 +87,7 @@
                sample-game-state)
         sufficient-resources (game-state (build-mine game))
         mine-count (fn [game]
-                     (get-in (player/current-player game) [:buildings :mine]))]
+                     (plater/get-in-current-player game [:buildings :mine]))]
     (mine-count insufficient-resources) => 2
     (mine-count sufficient-resources) => 3))
   )
