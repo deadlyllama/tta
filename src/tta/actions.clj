@@ -1,16 +1,19 @@
 (ns tta.actions
+  (:use [tta.utils :only [messageless message-m]]
+        [clojure.algo.monads :only [with-monad m-chain]])
   (:require [tta.player :as player]
             [clojure.set :as set]))
 
 (defn- combine2 [action1 action2]
   {:requirements (set/union (:requirements action1)
                             (:requirements action2))
-   :action (comp (:action action1)
-                 (:action action2))})
+   :action (with-monad message-m
+             (m-chain [(:action action1)
+                       (:action action2)]))})
 
 (def identity-action
   {:requirements #{}
-   :action identity})
+   :action (messageless identity)})
 
 (defn combine [& actions]
   (reduce combine2 identity-action actions))
@@ -21,9 +24,10 @@
         failing (filter (complement :ok?) requirement-results)
         failing-messages (set (mapcat :messages failing))]
     (if (empty? failing)
-      {:result ((:action action) game)
-       :ok? true
-       :messages #{}}
+      (let [result ((:action action) game)]
+        {:result (:result result)
+         :ok? true
+         :messages (:messages result)})
       {:result game
        :ok? false
        :messages failing-messages})))
@@ -38,15 +42,17 @@
             :messages []}
            {:ok? false
             :messages [error-message]}))}
-   :action (fn [game]
-             (player/update-current-player
-               game resource-path #(- % amount)))})
+   :action (messageless
+             (fn [game]
+               (player/update-current-player
+                 game resource-path #(- % amount))))})
 
 (defn increase-resource [resource-path amount]
   {:requirements #{}
-   :action (fn [game]
-             (player/update-current-player
-               game resource-path #(+ % amount)))})
+   :action (messageless
+             (fn [game]
+               (player/update-current-player
+                 game resource-path #(+ % amount))))})
 
 (def decrease-worker-pool
   (decrease-resource [:worker-pool] 1 "empty worker pool"))
@@ -88,11 +94,12 @@
                         :messages #{}}
                        {:ok? false
                         :messages #{"not enough food"}}))}
-   :action (fn [game]
-             (player/update-current-player
-               game
-               [:commodities :food]
-               #(- % (population-increase-cost (player/current-player game)))))})
+   :action (messageless
+             (fn [game]
+               (player/update-current-player
+                 game
+                 [:commodities :food]
+                 #(- % (population-increase-cost (player/current-player game))))))})
 
 (def increase-population-action
   (combine decrease-population-pool

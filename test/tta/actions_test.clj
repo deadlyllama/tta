@@ -17,7 +17,7 @@
         result (run-action combined game)
         game2 (player/assoc-in-current-player game [:commodities :resources] 3)
         with-extra-farm (run-action build-farm-action game2)]
-    (run-action identity-action game) => {:result game, :ok? true, :messages #{}}
+    (run-action identity-action game) => {:result game, :ok? true, :messages []}
     (:worker-pool (player/current-player (:result with-decreased-workers))) => 0
     fails-to-decrease-workers => {:result (:result with-decreased-workers)
                                   :ok? false

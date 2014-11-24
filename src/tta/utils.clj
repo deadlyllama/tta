@@ -30,3 +30,8 @@
   (fn [a-value]
     {:result a-value
      :messages [message]}))
+
+(defn messageless [f]
+  (fn [a-value]
+    {:result (f a-value)
+     :messages []}))
