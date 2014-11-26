@@ -69,7 +69,7 @@
   (increase-resource [:buildings :farm] 1))
 
 (defn decrease-resources-by [amount]
-  (decrease-resource [:commodities :resources] amount "not enough resources"))
+  (decrease-resource [:commodities :resources] amount "Not enough resources."))
 
 (defn decrease-food-by [amount]
   (decrease-resource [:commodities :food] amount "not enough food"))

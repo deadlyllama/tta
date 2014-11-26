@@ -25,9 +25,6 @@
     (:worker-pool (player/current-player (:result result))) => 2
     (player/get-in-current-player (:result result) [:buildings :mine]) => 3))
 
-(defn game-state [result] (get result 0))
-(defn action-success? [result] (get result 1))
-
 (facts "Increasing population"
   (let [game (-> sample-game-state
                  (player/assoc-in-current-player
@@ -40,47 +37,38 @@
     => (contains {:ok? true
                   :messages ["Increased population."]})))
 
-(comment
-  (facts "build-farm"
-    (let [[insufficient-resources] (build-farm sample-game-state)
-          game-without-working-pool
-          (player/eventless-update-player-with
-            (fn [player]
-              (multi-assoc-in player
-                              [:commodities :resources]
-                              2
-                              [:worker-pool]
-                              0))
-            sample-game-state)
-          [insufficient-working-pool] (build-farm game-without-working-pool)
-          game (player/eventless-update-player-with
-                 (fn [player]
-                   (assoc player :worker-pool 1))
-                 game-without-working-pool)
-          [sufficient-resources] (build-farm game)
-          farm-count (fn [game]
+(facts "build-farm"
+  (let [insufficient-resources
+          (run-action build-farm-action sample-game-state)
+        game-without-working-pool
+          (-> sample-game-state
+              (player/assoc-in-current-player [:commodities :resources] 2)
+              (player/assoc-in-current-player [:worker-pool] 0))
+        insufficient-working-pool
+          (run-action build-farm-action game-without-working-pool)
+        game (player/assoc-in-current-player game-without-working-pool [:worker-pool] 1)
+        sufficient-resources (run-action build-farm-action game)
+        farm-count (fn [game]
                        (player/get-in-current-player game [:buildings :farm]))
-          actions-remaining (fn [game]
+        actions-remaining (fn [game]
                               (player/get-in-current-player
                                 game [:civil-actions :remaining]))]
-      (farm-count insufficient-resources) => 2
-      (actions-remaining insufficient-resources) => 4
-      (farm-count insufficient-working-pool) => 2
-      (farm-count sufficient-resources) => 3
-      (actions-remaining sufficient-resources) => 3)))
+    (farm-count (:result insufficient-resources)) => 2
+    (actions-remaining (:result insufficient-resources)) => 4
+    (farm-count (:result insufficient-working-pool)) => 2
+    (farm-count (:result sufficient-resources)) => 3
+    (actions-remaining (:result sufficient-resources)) => 3))
 
-(comment
 (facts "build-mine"
-  (let [insufficient-resources (game-state (build-mine sample-game-state))
-        game (player/eventless-update-player-with
-               (fn [player]
-                 (assoc-in player
-                           [:commodities :resources]
-                           2))
-               sample-game-state)
-        sufficient-resources (game-state (build-mine game))
+  (let [insufficient-resources (run-action build-mine-action sample-game-state)
+        game (player/assoc-in-current-player
+               sample-game-state
+               [:commodities :resources]
+               2)
+        sufficient-resources (run-action build-mine-action game)
         mine-count (fn [game]
-                     (plater/get-in-current-player game [:buildings :mine]))]
-    (mine-count insufficient-resources) => 2
-    (mine-count sufficient-resources) => 3))
-  )
+                     (player/get-in-current-player game [:buildings :mine]))]
+    (mine-count (:result insufficient-resources)) => 2
+    (:messages insufficient-resources) => #{"Not enough resources."}
+    (mine-count (:result sufficient-resources)) => 3
+    (:messages sufficient-resources) => ["Built a mine."]))
