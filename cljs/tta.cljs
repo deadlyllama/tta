@@ -9,7 +9,7 @@
 (hiccups/defhtml show-player [player current-player]
   [:div {:class (if (= player current-player) "current-player" "player")}
    [:h3 (:name player)]
-   [:p (str "Culture: " (:culture player))]
+   [:h4 (str "Culture: " (:culture player))]
    [:h4 "Buildings"]
    [:ul
     (for [[building building-count] (:buildings player)]
@@ -18,20 +18,13 @@
    [:ul
     (for [[commodity commodity-count] (:commodities player)]
       [:li (str (name commodity) ": " commodity-count)])]
-   [:h4 "Supply"]
-   [:ul
-    [:li (str "balance: " (:supply player))]]
-   [:h4 "Worker pool"]
-   [:ul
-    [:li (str "balance: " (:worker-pool player))]]
-   [:h4 "Population bank"]
-   [:ul
-    [:li (str "balance: " (:population-bank player))]]
-   [:h4 "Civil actions"]
-   [:ul
-    [:li (str (get-in player [:civil-actions :remaining])
-              "/"
-              (get-in player [:civil-actions :total]))]]
+   [:h4 (str "Supply: " (:supply player))]
+   [:h4 (str "Worker pool: " (:worker-pool player))]
+   [:h4 (str "Population bank: " (:population-bank player))]
+   [:h4 (str "Civil actions: "
+             (get-in player [:civil-actions :remaining])
+             "/"
+             (get-in player [:civil-actions :total]))]
    [:h4 "Events"]
    [:ul (for [event (:events player)]
           [:li event])]])
