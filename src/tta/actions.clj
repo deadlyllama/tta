@@ -35,7 +35,6 @@
 (defn decrease-resource [resource-path amount error-message]
   {:requirements
      #{(fn [game]
-         (println resource-path)
          (if (<= amount
                  (player/get-in-current-player game resource-path))
            {:ok? true
@@ -93,7 +92,7 @@
                        {:ok? true
                         :messages #{}}
                        {:ok? false
-                        :messages #{"not enough food"}}))}
+                        :messages #{"Not enough food."}}))}
    :action (messageless
              (fn [game]
                (player/update-current-player
@@ -108,10 +107,10 @@
               :messages [message]})})
 
 (def increase-population-action
-  (combine decrease-population-pool
+  (combine pay-population-increase-cost
+           decrease-population-pool
            increase-worker-pool
            pay-action
-           pay-population-increase-cost
            (write-message "Increased population.")))
 
 (def build-farm-action

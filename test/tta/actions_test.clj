@@ -29,23 +29,16 @@
 (defn action-success? [result] (get result 1))
 
 (facts "Increasing population"
-  (comment
-    (let [game (assoc-in sample-game-state
-                         [:players (:current-player sample-game-state) :commodities :food]
-                         3)
-          game2 (player/eventless-update-player-with
-                  (fn [player]
-                    (multi-assoc-in player
-                                    [:commodities :food] 3
-                                    [:worker-pool] 3
-                                    [:population-bank] 16))
-                  sample-game-state)
-          updated-player (player/current-player (game-state (increase-population game)))
-          updated-player2 (player/current-player (game-state (increase-population game2)))]
-      updated-player => (contains {:worker-pool 2, :population-bank 17
-                                   :commodities (contains {:food 1})})
-      updated-player2 => (contains {:worker-pool 4, :population-bank 15
-                                    :commodities (contains {:food 0})}))))
+  (let [game (-> sample-game-state
+                 (player/assoc-in-current-player
+                   [:commodities :food]
+                   2)
+                 (player/assoc-in-current-player
+                   [:population-bank]
+                   17))]
+    (run-action increase-population-action game)
+    => (contains {:ok? true
+                  :messages ["Increased population."]})))
 
 (comment
   (facts "build-farm"
