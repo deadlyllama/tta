@@ -9,6 +9,7 @@
 (hiccups/defhtml show-player [player current-player]
   [:div {:class (if (= player current-player) "current-player" "player")}
    [:h3 (:name player)]
+   [:p (str "Culture: " (:culture player))]
    [:h4 "Buildings"]
    [:ul
     (for [[building building-count] (:buildings player)]

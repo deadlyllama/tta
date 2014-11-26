@@ -1,6 +1,7 @@
 (ns tta.game
   (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]]
-        [tta.utils :only [message-m no-messages]])
+        [tta.utils :only [message-m no-messages]]
+        [clojure.core.typed :only [ann tc-ignore]])
   (:require [tta.actions :as actions]
             [tta.player :as player]))
 
@@ -125,9 +126,15 @@
                        (player/get-in-current-player game [:civil-actions :total]))]
     (no-messages updated-game)))
 
+(defn produce-culture [game]
+  (let [temples (player/get-in-current-player game [:buildings :temple])]
+    {:result (player/update-in-current-player game [:culture] #(+ % temples))
+     :messages ["Produced culture."]}))
+
 (defn production-phase [game]
   (with-monad message-m
-    ((m-chain [produce-food
+    ((m-chain [produce-culture
+               produce-food
                pay-consumption
                produce-resources
                pay-corruption
@@ -148,4 +155,3 @@
     (if (last-players-turn? with-events)
       (next-round with-events)
       (next-player with-events))))
-

@@ -6,6 +6,7 @@
                :mine 2}
    :commodities {:food 0
                  :resources 0}
+   :culture 0
    :population-bank 18
    :civil-actions {:total 4, :remaining 4}
    :worker-pool 1
