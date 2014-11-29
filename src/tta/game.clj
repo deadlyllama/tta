@@ -108,14 +108,20 @@
 
 (defn pay-consumption [game]
   (let [[updated-game amounts] (player/update-player-with take-consumption-from game)
-        paid-consumption-event (if (pos? (:paid amounts))
-                                 [(str "Paid " (:paid amounts) " food in consumption.")]
+        paid-with-food (:paid amounts)
+        unpaid (:unpaid amounts)
+        culture-to-pay (min (* unpaid 4)
+                            (player/get-in-current-player updated-game [:culture]))
+        after-culture-payment (player/update-in-current-player
+                                updated-game [:culture] #(- % culture-to-pay))
+        food-consumption-event (if (pos? paid-with-food)
+                                 [(str "Paid " paid-with-food " food in consumption.")]
                                  [])
-        unpaid-consumption-event (if (pos? (:unpaid amounts))
-                                   [(str (:unpaid amounts) " consumption left unpaid.")]
+        culture-consumption-event (if (pos? culture-to-pay)
+                                   [(str culture-to-pay " culture paid in consumption.")]
                                    [])
-        messages (concat paid-consumption-event unpaid-consumption-event)]
-    {:result updated-game
+        messages (concat food-consumption-event culture-consumption-event)]
+    {:result after-culture-payment
      :messages messages}))
 
 (defn reset-actions [game]
