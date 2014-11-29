@@ -71,4 +71,4 @@
     (mine-count (:result insufficient-resources)) => 2
     (:messages insufficient-resources) => #{"Not enough resources."}
     (mine-count (:result sufficient-resources)) => 3
-    (:messages sufficient-resources) => ["Built a mine."]))
+    (:messages sufficient-resources) => ["Built a mine for 2 resources."]))

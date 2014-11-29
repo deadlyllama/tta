@@ -119,30 +119,31 @@
            pay-action
            (write-message "Increased population.")))
 
-(defn build-building [& {:keys [building-action resource-cost message]}]
+(defn build-building [& {:keys [building-action resource-cost building-name]}]
   (combine
     building-action
     (decrease-resources-by resource-cost)
     pay-action
     decrease-worker-pool
-    (write-message message)))
+    (write-message (str "Built a " building-name " for " resource-cost
+                        " resources."))))
 
 (def build-farm-action
   (build-building :building-action increase-farms
                   :resource-cost 2
-                  :message "Built a farm."))
+                  :building-name "farm"))
 
 (def build-mine-action
   (build-building :building-action increase-mines
                   :resource-cost 2
-                  :message "Built a mine."))
+                  :building-name "mine"))
 
 (def build-temple-action
   (build-building :building-action increase-temples
                   :resource-cost 3
-                  :message "Built a temple."))
+                  :building-name "temple"))
 
 (def build-lab-action
   (build-building :building-action increase-labs
                   :resource-cost 3
-                  :message "Built a lab."))
+                  :building-name "lab"))
