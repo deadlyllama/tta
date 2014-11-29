@@ -101,12 +101,12 @@
                         :messages #{}}
                        {:ok? false
                         :messages #{"Not enough food."}}))}
-   :action (messageless
-             (fn [game]
-               (let [cost (population-increase-cost (player/current-player game))]
-                 (-> game
-                  (player/update-in-current-player [:commodities :food] #(- % cost))
-                  (player/update-in-current-player [:supply] #(+ % cost))))))})
+   :action (fn [game]
+             (let [cost (population-increase-cost (player/current-player game))]
+               {:result (-> game
+                            (player/update-in-current-player [:commodities :food] #(- % cost))
+                            (player/update-in-current-player [:supply] #(+ % cost)))
+                :messages [(str "Increased population for " cost " food.")]}))})
 
 (defn write-message [message]
   {:requirements #{}
@@ -116,8 +116,7 @@
   (combine pay-population-increase-cost
            decrease-population-pool
            increase-worker-pool
-           pay-action
-           (write-message "Increased population.")))
+           pay-action))
 
 (defn build-building [& {:keys [building-action resource-cost building-name]}]
   (combine

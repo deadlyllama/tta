@@ -33,7 +33,7 @@
         result (run-action increase-population-action game)]
 
     result => (contains {:ok? true
-                         :messages ["Increased population."]})
+                         :messages ["Increased population for 2 food."]})
 
     (player/get-in-current-player (:result result) [:supply]) => 17))
 
