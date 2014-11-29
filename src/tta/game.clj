@@ -1,7 +1,6 @@
 (ns tta.game
   (:use [clojure.algo.monads :only [domonad defmonad with-monad m-chain]]
-        [tta.utils :only [message-m no-messages]]
-        [clojure.core.typed :only [ann tc-ignore]])
+        [tta.utils :only [message-m no-messages]])
   (:require [tta.actions :as actions]
             [tta.player :as player]))
 
