@@ -10,6 +10,7 @@
   [:div {:class (if (= player current-player) "current-player" "player")}
    [:h3 (:name player)]
    [:h4 (str "Culture: " (:culture player))]
+   [:h4 (str "Science: " (:science player))]
    [:h4 "Buildings"]
    [:ul
     (for [[building building-count] (:buildings player)]
@@ -58,6 +59,7 @@
   (bind-action ($ :#build-farm) "build-farm")
   (bind-action ($ :#build-mine) "build-mine")
   (bind-action ($ :#build-temple) "build-temple")
+  (bind-action ($ :#build-lab) "build-lab")
 
   (bind ($ :#reset) "click"
     (fn [event]

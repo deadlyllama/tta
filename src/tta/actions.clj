@@ -69,6 +69,9 @@
 (def increase-temples
   (increase-counter [:buildings :temple] 1))
 
+(def increase-labs
+  (increase-counter [:buildings :lab] 1))
+
 (defn decrease-resources-by [amount]
   (decrease-counter [:commodities :resources] amount "Not enough resources."))
 
@@ -134,3 +137,8 @@
   (build-building :building-action increase-temples
                   :resource-cost 3
                   :message "Built a temple."))
+
+(def build-lab-action
+  (build-building :building-action increase-labs
+                  :resource-cost 3
+                  :message "Built a lab."))

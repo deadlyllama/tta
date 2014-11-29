@@ -128,11 +128,17 @@
 (defn produce-culture [game]
   (let [temples (player/get-in-current-player game [:buildings :temple])]
     {:result (player/update-in-current-player game [:culture] #(+ % temples))
-     :messages ["Produced culture."]}))
+     :messages [(str "Produced " temples " culture." )]}))
+
+(defn produce-science [game]
+  (let [labs (player/get-in-current-player game [:buildings :lab])]
+    {:result (player/update-in-current-player game [:science] #(+ % labs))
+     :messages [(str "Produced " labs " science.")]}))
 
 (defn production-phase [game]
   (with-monad message-m
     ((m-chain [produce-culture
+               produce-science
                produce-food
                pay-consumption
                produce-resources

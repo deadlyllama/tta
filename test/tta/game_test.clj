@@ -138,11 +138,17 @@
             [:players 0 :civil-actions :remaining]) => 4))
 
 (fact "ending a turn produces culture"
-  (let [after-turn (end-turn sample-game-state)]
-    (get-in after-turn [:players 0 :culture]) => 1)
   (let [with-two-temples (player/assoc-in-current-player
                            sample-game-state
                            [:buildings :temple]
                            2)
         after-turn (end-turn with-two-temples)]
     (get-in after-turn [:players 0 :culture]) => 2))
+
+(fact "ending a turn produces science"
+  (let [after-turn (end-turn sample-game-state)]
+    (get-in after-turn [:players 0 :science]) => 1)
+  (let [with-two-labs (player/assoc-in-current-player
+                        sample-game-state [:buildings :lab] 2)
+        after-turn (end-turn with-two-labs)]
+    (get-in after-turn [:players 0 :science]) => 2))

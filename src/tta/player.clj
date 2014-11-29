@@ -1,12 +1,14 @@
 (ns tta.player)
 
 (def initial-player-state
-  {:buildings {:temple 1
+  {:buildings {:temple 0
                :farm 2
-               :mine 2}
+               :mine 2
+               :lab 1}
    :commodities {:food 0
                  :resources 0}
    :culture 0
+   :science 0
    :population-bank 18
    :civil-actions {:total 4, :remaining 4}
    :worker-pool 1

@@ -22,7 +22,9 @@
                                   actions/increase-population-action)
    "build-mine" (partial game/attempt-action actions/build-mine-action)
    "build-farm" (partial game/attempt-action actions/build-farm-action)
-   "build-temple" (partial game/attempt-action actions/build-temple-action)})
+   "build-temple" (partial game/attempt-action actions/build-temple-action)
+   "build-lab" (partial game/attempt-action actions/build-lab-action)
+   })
 
 (defroutes tta-routes
   (GET "/" []
