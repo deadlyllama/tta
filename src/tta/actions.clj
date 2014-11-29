@@ -1,5 +1,5 @@
 (ns tta.actions
-  (:use [tta.utils :only [messageless message-m]]
+  (:use [tta.utils :only [messageless message-m write]]
         [clojure.algo.monads :only [with-monad m-chain]])
   (:require [tta.player :as player]
             [clojure.set :as set]))
@@ -32,50 +32,48 @@
        :ok? false
        :messages failing-messages})))
 
-(defn decrease-resource [resource-path amount error-message]
+(defn decrease-counter [counter-path amount error-message]
   {:requirements
      #{(fn [game]
          (if (<= amount
-                 (player/get-in-current-player game resource-path))
+                 (player/get-in-current-player game counter-path))
            {:ok? true
             :messages []}
            {:ok? false
             :messages [error-message]}))}
    :action (messageless
              (fn [game]
-               (player/update-current-player
-                 game resource-path #(- % amount))))})
+               (player/update-current-player game counter-path #(- % amount))))})
 
-(defn increase-resource [resource-path amount]
+(defn increase-counter [counter-path amount]
   {:requirements #{}
    :action (messageless
              (fn [game]
-               (player/update-current-player
-                 game resource-path #(+ % amount))))})
+               (player/update-current-player game counter-path #(+ % amount))))})
 
 (def decrease-worker-pool
-  (decrease-resource [:worker-pool] 1 "empty worker pool"))
+  (decrease-counter [:worker-pool] 1 "empty worker pool"))
 
 (def decrease-population-pool
-  (decrease-resource [:population-bank] 1 "empty population pool"))
+  (decrease-counter [:population-bank] 1 "empty population pool"))
 
 (def increase-worker-pool
-  (increase-resource [:worker-pool] 1))
+  (increase-counter [:worker-pool] 1))
 
 (def increase-mines
-  (increase-resource [:buildings :mine] 1))
+  (increase-counter [:buildings :mine] 1))
 
 (def increase-farms
-  (increase-resource [:buildings :farm] 1))
+  (increase-counter [:buildings :farm] 1))
 
 (defn decrease-resources-by [amount]
-  (decrease-resource [:commodities :resources] amount "Not enough resources."))
+  (decrease-counter [:commodities :resources] amount "Not enough resources."))
 
 (defn decrease-food-by [amount]
-  (decrease-resource [:commodities :food] amount "not enough food"))
+  (decrease-counter [:commodities :food] amount "not enough food"))
 
 (def pay-action
-  (decrease-resource [:civil-actions :remaining] 1 "no actions remaining"))
+  (decrease-counter [:civil-actions :remaining] 1 "no actions remaining"))
 
 (defn population-increase-cost [a-player]
   (let [bank (:population-bank a-player)]
@@ -102,9 +100,7 @@
 
 (defn write-message [message]
   {:requirements #{}
-   :action (fn [a-value]
-             {:result a-value
-              :messages [message]})})
+   :action (write message)})
 
 (def increase-population-action
   (combine pay-population-increase-cost
