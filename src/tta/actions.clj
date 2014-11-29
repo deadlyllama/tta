@@ -66,6 +66,9 @@
 (def increase-farms
   (increase-counter [:buildings :farm] 1))
 
+(def increase-temples
+  (increase-counter [:buildings :temple] 1))
+
 (defn decrease-resources-by [amount]
   (decrease-counter [:commodities :resources] amount "Not enough resources."))
 
@@ -109,17 +112,25 @@
            pay-action
            (write-message "Increased population.")))
 
-(def build-farm-action
-  (combine 
-    increase-farms
-    (decrease-resources-by 2)
+(defn build-building [& {:keys [building-action resource-cost message]}]
+  (combine
+    building-action
+    (decrease-resources-by resource-cost)
     pay-action
     decrease-worker-pool
-    (write-message "Built a farm.")))
+    (write-message message)))
+
+(def build-farm-action
+  (build-building :building-action increase-farms
+                  :resource-cost 2
+                  :message "Built a farm."))
 
 (def build-mine-action
-  (combine increase-mines
-           (decrease-resources-by 2)
-           pay-action
-           decrease-worker-pool
-           (write-message "Built a mine.")))
+  (build-building :building-action increase-mines
+                  :resource-cost 2
+                  :message "Built a mine."))
+
+(def build-temple-action
+  (build-building :building-action increase-temples
+                  :resource-cost 3
+                  :message "Built a temple."))

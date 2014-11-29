@@ -57,6 +57,7 @@
   (bind-action ($ :#increase-population) "increase-population")
   (bind-action ($ :#build-farm) "build-farm")
   (bind-action ($ :#build-mine) "build-mine")
+  (bind-action ($ :#build-temple) "build-temple")
 
   (bind ($ :#reset) "click"
     (fn [event]
