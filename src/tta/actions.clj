@@ -73,10 +73,14 @@
   (increase-counter [:buildings :lab] 1))
 
 (defn decrease-resources-by [amount]
-  (decrease-counter [:commodities :resources] amount "Not enough resources."))
+  (combine
+    (decrease-counter [:commodities :resources] amount "Not enough resources.")
+    (increase-counter [:supply] amount)))
 
 (defn decrease-food-by [amount]
-  (decrease-counter [:commodities :food] amount "not enough food"))
+  (combine
+    (decrease-counter [:commodities :food] amount "not enough food")
+    (increase-counter [:supply] amount)))
 
 (def pay-action
   (decrease-counter [:civil-actions :remaining] 1 "no actions remaining"))
@@ -99,10 +103,10 @@
                         :messages #{"Not enough food."}}))}
    :action (messageless
              (fn [game]
-               (player/update-current-player
-                 game
-                 [:commodities :food]
-                 #(- % (population-increase-cost (player/current-player game))))))})
+               (let [cost (population-increase-cost (player/current-player game))]
+                 (-> game
+                  (player/update-in-current-player [:commodities :food] #(- % cost))
+                  (player/update-in-current-player [:supply] #(+ % cost))))))})
 
 (defn write-message [message]
   {:requirements #{}

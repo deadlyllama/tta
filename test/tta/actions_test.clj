@@ -27,15 +27,15 @@
 
 (facts "Increasing population"
   (let [game (-> sample-game-state
-                 (player/assoc-in-current-player
-                   [:commodities :food]
-                   2)
-                 (player/assoc-in-current-player
-                   [:population-bank]
-                   17))]
-    (run-action increase-population-action game)
-    => (contains {:ok? true
-                  :messages ["Increased population."]})))
+                 (player/assoc-in-current-player [:commodities :food] 2)
+                 (player/assoc-in-current-player [:supply] 15)
+                 (player/assoc-in-current-player [:population-bank] 17))
+        result (run-action increase-population-action game)]
+
+    result => (contains {:ok? true
+                         :messages ["Increased population."]})
+
+    (player/get-in-current-player (:result result) [:supply]) => 17))
 
 (facts "build-farm"
   (let [insufficient-resources
