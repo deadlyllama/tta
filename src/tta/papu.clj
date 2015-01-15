@@ -4,16 +4,16 @@
   (:require [tta.player :as player]
             [clojure.set :as set]))
 
+(def identity-action
+  {:requirements #{}
+   :action (messageless identity)})
+
 (defn- combine2 [action1 action2]
   {:requirements (set/union (:requirements action1)
                             (:requirements action2))
    :action (with-monad message-m
              (m-chain [(:action action1)
                        (:action action2)]))})
-
-(def identity-action
-  {:requirements #{}
-   :action (messageless identity)})
 
 (defn combine [& actions]
   (reduce combine2 identity-action actions))
