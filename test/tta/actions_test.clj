@@ -3,6 +3,7 @@
         ;no bullshit, only  facts
         [clojure.algo.monads :only [domonad]]
         tta.actions
+        tta.papu
         tta.utils
         [tta.game :only [sample-game-state]])
   (:require [tta.player :as player]))
