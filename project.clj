@@ -12,6 +12,7 @@
                  [hiccups "0.3.0"]
                  [org.clojure/clojurescript "0.0-2665"]
                  [org.clojure/algo.monads "0.1.5"]]
+  :main tta.web
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-cljsbuild "1.0.4"]
