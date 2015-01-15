@@ -7,7 +7,8 @@
             [ring.middleware.format :refer [wrap-restful-format]]
             [environ.core :refer [env]]
             [tta.game :as game]
-            [tta.actions :as actions]))
+            [tta.actions :as actions])
+  (:gen-class))
 
 (defn splash []
   {:status 200

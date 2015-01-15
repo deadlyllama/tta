@@ -12,18 +12,18 @@
                  [hiccups "0.3.0"]
                  [org.clojure/clojurescript "0.0-2665"]
                  [org.clojure/algo.monads "0.1.5"]]
-  :main ^:skip-aot tta.web
+  :main tta.web
+  :aot [tta.web]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-cljsbuild "1.0.4"]
             [lein-ring "0.8.13"]]
   :hooks [leiningen.cljsbuild]
   :uberjar-name "tta.jar"
-  :profiles {:uberjar {:aot :all}
-             :production {:env {:production true}}
+  :profiles {:production {:env {:production true}}
              :dev {:dependencies [[midje "1.6.3"]]
                    :plugins [[lein-midje "3.1.3"]]}}
-  :cljsbuild {:builds [{:source-paths ["cljs", "target/classes"]
+  :cljsbuild {:builds [{:source-paths ["cljs"]
                         :jar true
                         :compiler {:output-to "resources/public/js/app.js"
                                    :optimizations :whitespace
