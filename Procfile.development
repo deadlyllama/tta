@@ -1,3 +1,3 @@
-ring: lein ring server
-cljs: lein cljsbuild auto
-midje: lein midje :autotest
+ring: lein trampoline ring server
+cljs: lein trampoline cljsbuild auto
+midje: lein trampoline midje :autotest
