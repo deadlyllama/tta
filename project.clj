@@ -19,7 +19,8 @@
             [lein-ring "0.8.13"]]
   :hooks [leiningen.cljsbuild]
   :uberjar-name "tta.jar"
-  :profiles {:production {:env {:production true}}
+  :profiles {:uberjar {:aot :all}
+             :production {:env {:production true}}
              :dev {:dependencies [[midje "1.6.3"]]
                    :plugins [[lein-midje "3.1.3"]]}}
   :cljsbuild {:builds [{:source-paths ["cljs", "target/classes"]
