@@ -4,6 +4,7 @@
             [compojure.route :as route]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
+            [ring.util.response :as response]
             [ring.middleware.format :refer [wrap-restful-format]]
             [environ.core :refer [env]]
             [tta.game :as game]
@@ -29,7 +30,7 @@
 
 (defroutes tta-routes
   (GET "/" []
-       (splash))
+       (response/charset (splash) "UTF-8"))
   (GET "/api/game" []
        {:status 200
         :body @current-game})
