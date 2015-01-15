@@ -1,19 +1,99 @@
 <!doctype html>
 <head>
-    <link rel="stylesheet" type="text/css" href="styles.css" />
-    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
-    <script src="js/app.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+  <script src="js/app.js"></script>
 </head>
 <body>
-    <div>
-      <button id="pass">pass</button>
-      <button id="reset">reset</button>
-      <button id="increase-population">Increase population</button>
-      <button id="build-farm">Build farm</button>
-      <button id="build-mine">Build mine</button>
-      <button id="build-temple">Build temple</button>
-      <button id="build-lab">Build lab</button>
-      <div id="game"></div>
+  <div>
+    <button id="pass">pass</button>
+    <button id="reset">reset</button>
+    <button id="increase-population">Increase population</button>
+    <button id="build-farm">Build farm</button>
+    <button id="build-mine">Build mine</button>
+    <button id="build-temple">Build temple</button>
+    <button id="build-lab">Build lab</button>
+
+    <div id="newgame">
+      <h3>Supply</h3>
+      <table cellspacing="0">
+        <tr>
+          <td class="meter-block supply-1"><div class="meter-bar supply-present">&nbsp;</div></td>
+          <td class="meter-block supply-1"><div class="meter-bar supply-present">&nbsp;</div></td>
+          <td class="meter-block supply-1"><div class="meter-bar supply-present">&nbsp;</div></td>
+          <td class="meter-block supply-1"><div class="meter-bar supply-present">&nbsp;</div></td>
+
+          <td class="meter-block supply-2"><div class="meter-bar supply-present">&nbsp;</div></td>
+          <td class="meter-block supply-2"><div class="meter-bar supply-present">&nbsp;</div></td>
+          <td class="meter-block supply-2"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-2"><div class="meter-bar supply-used">&nbsp;</div></td>
+
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+          <td class="meter-block supply-3"><div class="meter-bar supply-used">&nbsp;</div></td>
+        </tr>
+        <tr class="numbers">
+          <td class="supply-1" colspan="4">6</td>
+          <td class="supply-2" colspan="4">4</td>
+          <td class="supply-3" colspan="10">2</td>
+        </tr>
+      </table>
+
+      <h3>Population bank</h3>
+      <table cellspacing="0">
+        <tr>
+          <td class="meter-block population-1"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-1"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-1"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-1"><div class="meter-bar population-present">&nbsp;</div></td>
+
+          <td class="meter-block population-2"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-2"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-2"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-2"><div class="meter-bar population-present">&nbsp;</div></td>
+
+          <td class="meter-block population-3"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-3"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-3"><div class="meter-bar population-present">&nbsp;</div></td>
+          <td class="meter-block population-3"><div class="meter-bar population-used">&nbsp;</div></td>
+
+          <td class="meter-block population-4"><div class="meter-bar population-used">&nbsp;</div></td>
+          <td class="meter-block population-4"><div class="meter-bar population-used">&nbsp;</div></td>
+          <td class="meter-block population-4"><div class="meter-bar population-used">&nbsp;</div></td>
+          <td class="meter-block population-4"><div class="meter-bar population-used">&nbsp;</div></td>
+
+          <td class="meter-block population-5"><div class="meter-bar population-used">&nbsp;</div></td>
+          <td class="meter-block population-5"><div class="meter-bar population-used">&nbsp;</div></td>
+        </tr>
+        <tr class="numbers">
+          <td class="population-1" colspan="4">6/7</td>
+          <td class="population-2" colspan="4">4/5</td>
+          <td class="population-3" colspan="4">3/4</td>
+          <td class="population-4" colspan="4">2/3</td>
+          <td class="population-5" colspan="2">1/2</td>
+        </tr>
+        <tr class="happiness">
+          <td class="population-1" colspan="2">8</td>
+          <td class="population-1" colspan="2">7</td>
+          <td class="population-2" colspan="2">6</td>
+          <td class="population-2" colspan="2">5</td>
+          <td class="population-3" colspan="2">4</td>
+          <td class="population-3" colspan="2">3</td>
+          <td class="population-4" colspan="2">2</td>
+          <td class="population-4" colspan="2"></td>
+          <td class="population-5" colspan="2">1</td>
+        </tr>
+      </table>
     </div>
+
+    <div id="game"></div>
+  </div>
 </body>
 

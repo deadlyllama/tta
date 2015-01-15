@@ -1,28 +1,94 @@
 h2 {
-    padding: 20px;
+  padding: 20px;
 }
 
-p, h2, h3, h4, li {
-    font-family: "Helvetica Neue", Helvetica, sans-serif;
-    line-height: 1.5;
+body {
+  font-size: 18px;
+  background: #FFE;
+  /* background: #FF1654; */
+}
+
+* {
+  font-family: "Papyrus", decorative;
+  line-height: 1.5;
+  color: #463F3A;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
 }
 
 h3 {
-    margin-top: 0;
+  margin-top: 20px;
+  margin-right: 10px;
+  margin-bottom: 0;
+  display: inline-block;
 }
 
 ul {
-    list-style-type: none;
-    padding-left: 0;
+  list-style-type: none;
+  padding-left: 0;
 }
 
 .player, .current-player {
-    width: 200px;
-    display: inline-block;
-    vertical-align: top;
-    padding: 20px;
+  width: 200px;
+  display: inline-block;
+  vertical-align: top;
+  padding: 20px;
 }
 
 .current-player {
-    background: #f4f4f4;
+  background: #84DCC6;
+}
+
+#newgame {
+  margin-top: 40px;
+}
+
+.supply-1 { background: #bbb; }
+.supply-2 { background: #ddd; }
+.supply-3 { background: #eee; }
+
+.supply-present {
+  background: #65ADF5;
+}
+
+.supply-used {
+}
+
+.population-1 { background: #bbb; }
+.population-2 { background: #ccc; }
+.population-3 { background: #ddd; }
+.population-4 { background: #e6e6e6; }
+.population-5 { background: #eee; }
+
+.meter-bar {
+  border: 1px solid #463F3A;
+  width: 10px;
+}
+
+.meter-block {
+  margin: 0;
+  padding: 4px;
+}
+
+
+.population-present {
+  background: #FCA17D;
+}
+
+.population-used {
+}
+
+table {
+}
+
+td {
+  margin: 0;
+  padding: 0;
+}
+
+.numbers td,
+.happiness td {
+  padding-left: 5px;
 }
