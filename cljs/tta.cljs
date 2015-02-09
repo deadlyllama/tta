@@ -30,6 +30,30 @@
    [:ul (for [event (:events player)]
           [:li event])]])
 
+(defn show-player-board [player]
+  [:div {:id "newgame"}
+   [:div {:id "lab", :class "urban building"}
+    [:div {:class "header"}
+     [:span {:class "era"} "A"]
+     [:span {:class "building-type"} "lab"]]
+    [:div {:class "building-area"}
+     [:h4 "Philosophy"]
+     
+     [:div {:class "building-meter"}
+      [:table {:cellspacing "0"}
+       (let [lab-count (get-in player [:buildings :lab])]
+         (concat (repeat lab-count
+                         [:td {:class "meter-block"}
+                          [:div {:class "meter-bar population-filled"}]])
+                 (repeat (- 2 lab-count)
+                         [:td {:class "meter-block"}
+                          [:div {:class "meter-bar population-empty"}]])))]]
+     
+     [:p "3 ROCKS"]]
+    [:div {:class "building-info"}
+     "+1 SCIENCE"]]
+   ])
+
 (defn current-player [game]
   (get (:players game)
        (:current-player game)))
