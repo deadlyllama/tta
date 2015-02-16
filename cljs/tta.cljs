@@ -30,28 +30,55 @@
    [:ul (for [event (:events player)]
           [:li event])]])
 
-(defn show-player-board [player]
-  [:div {:id "newgame"}
-   [:div {:id "lab", :class "urban building"}
+(defn show-urban-building [& {:keys [building-id building-type building-name
+                                     amount-built amount-remaining
+                                     price building-info]
+                              :or {amount-remainging 0}}]
+   [:div {:id building-id, :class "urban building"}
     [:div {:class "header"}
      [:span {:class "era"} "A"]
-     [:span {:class "building-type"} "lab"]]
+     [:span {:class "building-type"} building-type]]
     [:div {:class "building-area"}
-     [:h4 "Philosophy"]
-     
+     [:h4 building-name]
+
      [:div {:class "building-meter"}
       [:table {:cellspacing "0"}
-       (let [lab-count (get-in player [:buildings :lab])]
-         (concat (repeat lab-count
-                         [:td {:class "meter-block"}
-                          [:div {:class "meter-bar population-filled"}]])
-                 (repeat (- 2 lab-count)
-                         [:td {:class "meter-block"}
-                          [:div {:class "meter-bar population-empty"}]])))]]
-     
-     [:p "3 ROCKS"]]
+       (concat (repeat amount-built
+                       [:td {:class "meter-block"}
+                        [:div {:class "meter-bar population-filled"}
+                         "&nbsp"]])
+               (repeat amount-remaining
+                       [:td {:class "meter-block"}
+                        [:div {:class "meter-bar population-empty"}
+                         "&nbsp"]]))]]
+
+     [:p price]]
     [:div {:class "building-info"}
-     "+1 SCIENCE"]]
+     building-info]])
+
+(defn show-player-board [player]
+  [:div {:id "newgame"}
+   (let [lab-count (get-in player [:buildings :lab])
+         labs-remaining (- 2 lab-count)]
+     (show-urban-building :building-id "lab"
+                          :building-type "lab"
+                          :building-name "Philosophy"
+                          :amount-built lab-count
+                          :amount-remaining labs-remaining
+                          :price "3 ROCKS"
+                          :building-info "+1 SCIENCE"))
+
+   "&nbsp"
+
+   (let [temple-count (get-in player [:buildings :temple])
+         temples-remaining (- 2 temple-count)]
+     (show-urban-building :building-id "temple"
+                          :building-type "temple"
+                          :building-name "Religion"
+                          :amount-built temple-count
+                          :amount-remaining temples-remaining
+                          :price "3 ROCKS"
+                          :building-info "+1 CÜLTÜÜRI, +1 🐱"))
    ])
 
 (defn current-player [game]
@@ -59,6 +86,7 @@
        (:current-player game)))
 
 (hiccups/defhtml render-game [game]
+  (show-player-board (current-player game))
   [:h2 (str "Round: " (:current-round game))]
   (map #(show-player % (current-player game)) (:players game)))
 
