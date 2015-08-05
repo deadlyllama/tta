@@ -33,7 +33,7 @@
 (defn show-urban-building [& {:keys [building-id building-type building-name
                                      amount-built amount-remaining
                                      price building-info]
-                              :or {amount-remainging 0}}]
+                              :or {amount-remaining 0}}]
    [:div {:id building-id, :class "urban building"}
     [:div {:class "header"}
      [:span {:class "era"} "A"]
@@ -46,15 +46,41 @@
        (concat (repeat amount-built
                        [:td {:class "meter-block"}
                         [:div {:class "meter-bar population-filled"}
-                         "&nbsp"]])
+                         "&nbsp;"]])
                (repeat amount-remaining
                        [:td {:class "meter-block"}
                         [:div {:class "meter-bar population-empty"}
-                         "&nbsp"]]))]]
+                         "&nbsp;"]]))]]
 
      [:p price]]
     [:div {:class "building-info"}
      building-info]])
+
+(defn show-production-building [& {:keys [building-id building-type
+                                          building-name amount-built
+                                          building-info price
+                                          commodity-count]}]
+  [:div {:id building-id, :class "production building"}
+   [:div {:class "header"}
+    [:span {:class "era"} "A"]
+    [:span {:class "building-type"} building-type]]
+   [:div {:class "building-area"}
+    [:h4 building-name]
+    [:div {:class "building-meter"}
+     [:table {:cellspacing "0"}
+      (repeat amount-built
+              [:td {:class "meter-block"}
+               [:div {:class "meter-bar population-filled"}
+                "&nbsp;"]])]]
+    [:div {:class "building-meter"}
+     [:table {:cellspacing "0"}
+      (repeat commodity-count
+              [:td {:class "meter-block"}
+               [:div {:class "meter-bar supply-filled"}
+                "&nbsp;"]])]]
+    [:p price]]
+   [:div {:class "building-info"}
+    building-info]])
 
 (defn show-player-board [player]
   [:div {:id "newgame"}
@@ -68,7 +94,7 @@
                           :price "3 ROCKS"
                           :building-info "+1 SCIENCE"))
 
-   "&nbsp"
+   "&nbsp;"
 
    (let [temple-count (get-in player [:buildings :temple])
          temples-remaining (- 2 temple-count)]
@@ -79,7 +105,30 @@
                           :amount-remaining temples-remaining
                           :price "3 ROCKS"
                           :building-info "+1 CÜLTÜÜRI, +1 🐱"))
-   ])
+
+   "&nbsp;"
+
+   (let [farm-count (get-in player [:buildings :farm])
+         food-count (get-in player [:commodities :food])]
+     (show-production-building :building-id "farm"
+                               :building-type "farm"
+                               :building-name "Agriculture"
+                               :amount-built farm-count
+                               :price "2 ROCKS"
+                               :building-info "1 FÖÖD"
+                               :commodity-count food-count))
+
+   "&nbsp;"
+
+   (let [mine-count (get-in player [:buildings :mine])
+         resource-count (get-in player [:commodities :resources])]
+     (show-production-building :building-id "mine"
+                               :building-type "mine"
+                               :building-name "Bronze"
+                               :amount-built mine-count
+                               :price "2 ROCKS"
+                               :building-info "1 CIVEN"
+                               :commodity-count resource-count))])
 
 (defn current-player [game]
   (get (:players game)
