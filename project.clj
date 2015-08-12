@@ -9,8 +9,9 @@
                  [environ "1.0.0"]
                  [jayq "2.5.4"]
                  [hiccups "0.3.0"]
-                 [org.clojure/clojurescript "1.7.28"]
-                 [org.clojure/algo.monads "0.1.5"]]
+                 [org.clojure/clojurescript "1.7.107"]
+                 [org.clojure/algo.monads "0.1.5"]
+                 [org.clojure/tools.reader "0.10.0-alpha1"]]
   :main tta.web
   :aot [tta.web]
   :min-lein-version "2.0.0"
